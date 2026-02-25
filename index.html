@@ -1,163 +1,170 @@
-import React from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  TouchableOpacity,
-  StyleSheet
-} from "react-native";
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Design 5G</title>
 
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-const Stack = createNativeStackNavigator();
-
-/* ================= DATA ================= */
-
-const houses = [
-  {
-    id: "1",
-    title: "Villa moderne",
-    price: "85 000 000 FCFA",
-    location: "Abidjan, Cocody",
-    image: "https://picsum.photos/400/300"
-  },
-  {
-    id: "2",
-    title: "Appartement luxe",
-    price: "45 000 000 FCFA",
-    location: "Abidjan, Marcory",
-    image: "https://picsum.photos/401/300"
-  },
-  {
-    id: "3",
-    title: "Maison familiale",
-    price: "30 000 000 FCFA",
-    location: "Abidjan, Yopougon",
-    image: "https://picsum.photos/402/300"
-  }
-];
-
-/* ================= HOME ================= */
-
-function HomeScreen({ navigation }) {
-  return (
-    <FlatList
-      data={houses}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate("Detail", { item })}
-        >
-          <Image source={{ uri: item.image }} style={styles.image} />
-
-          <View style={styles.info}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.location}>{item.location}</Text>
-            <Text style={styles.price}>{item.price}</Text>
-          </View>
-        </TouchableOpacity>
-      )}
-    />
-  );
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#111;
+color:white;
+text-align:center;
 }
 
-/* ================= DETAIL ================= */
-
-function DetailScreen({ route }) {
-  const { item } = route.params;
-
-  return (
-    <View style={styles.container}>
-      <Image source={{ uri: item.image }} style={styles.detailImage} />
-
-      <Text style={styles.detailTitle}>{item.title}</Text>
-      <Text style={styles.detailLocation}>{item.location}</Text>
-      <Text style={styles.detailPrice}>{item.price}</Text>
-
-      <TouchableOpacity style={styles.button}>
-        <Text style={{ color: "#fff", fontWeight: "bold" }}>
-          Contacter l'agence
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
+header{
+background:#000;
+padding:12px;
+font-size:20px;
+font-weight:bold;
 }
 
-/* ================= APP ================= */
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Accueil" component={HomeScreen} />
-        <Stack.Screen name="Detail" component={DetailScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+.toolbar{
+display:flex;
+gap:8px;
+overflow:auto;
+padding:10px;
+background:#1c1c1c;
 }
 
-/* ================= STYLES ================= */
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+background:#00c2ff;
+color:white;
+font-weight:bold;
+}
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "#fff",
-    margin: 12,
-    borderRadius: 15,
-    overflow: "hidden",
-    elevation: 4
-  },
-  image: {
-    width: "100%",
-    height: 180
-  },
-  info: {
-    padding: 12
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold"
-  },
-  location: {
-    color: "gray",
-    marginTop: 4
-  },
-  price: {
-    color: "#27ae60",
-    marginTop: 6,
-    fontWeight: "bold"
-  },
-  container: {
-    flex: 1,
-    padding: 15,
-    backgroundColor: "#fff"
-  },
-  detailImage: {
-    width: "100%",
-    height: 250,
-    borderRadius: 12
-  },
-  detailTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 15
-  },
-  detailLocation: {
-    color: "gray",
-    marginTop: 6
-  },
-  detailPrice: {
-    fontSize: 20,
-    color: "#27ae60",
-    marginTop: 10
-  },
-  button: {
-    backgroundColor: "#111",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 25
-  }
+#canvasBox{
+display:flex;
+justify-content:center;
+margin-top:10px;
+}
+
+canvas{
+background:white;
+touch-action:none;
+border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>🎨 Design 5G Editor</header>
+
+<div class="toolbar">
+<button onclick="addText()">Texte</button>
+<input type="file" id="imgLoader" accept="image/*">
+<button onclick="changeColor()">Couleur</button>
+<button onclick="saveProject()">Sauvegarder</button>
+<button onclick="exportPNG()">Export PNG</button>
+</div>
+
+<div id="canvasBox">
+<canvas id="canvas" width="350" height="500"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let elements = [];
+let selected = null;
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+elements.forEach(el=>{
+if(el.type==="text"){
+ctx.fillStyle=el.color;
+ctx.font=el.size+"px Arial";
+ctx.fillText(el.text,el.x,el.y);
+}
+if(el.type==="image"){
+ctx.drawImage(el.img,el.x,el.y,el.w,el.h);
+}
 });
+}
+
+function addText(){
+elements.push({
+type:"text",
+text:"Design 5G",
+x:100,
+y:100,
+size:30,
+color:"#000"
+});
+draw();
+}
+
+document.getElementById("imgLoader").addEventListener("change",e=>{
+const file=e.target.files[0];
+const img=new Image();
+img.onload=function(){
+elements.push({
+type:"image",
+img:img,
+x:50,
+y:50,
+w:150,
+h:150
+});
+draw();
+};
+img.src=URL.createObjectURL(file);
+});
+
+function changeColor(){
+if(!elements.length) return;
+elements[elements.length-1].color=
+"#"+Math.floor(Math.random()*16777215).toString(16);
+draw();
+}
+
+let dragging=false;
+
+canvas.addEventListener("touchstart",e=>{
+const t=e.touches[0];
+selected=elements[elements.length-1];
+dragging=true;
+});
+
+canvas.addEventListener("touchmove",e=>{
+if(!dragging || !selected) return;
+const rect=canvas.getBoundingClientRect();
+selected.x=e.touches[0].clientX-rect.left;
+selected.y=e.touches[0].clientY-rect.top;
+draw();
+});
+
+canvas.addEventListener("touchend",()=>{
+dragging=false;
+});
+
+function saveProject(){
+localStorage.setItem("design5g",
+JSON.stringify(elements.map(e=>{
+if(e.type==="text") return e;
+return {type:"image",x:e.x,y:e.y,w:e.w,h:e.h};
+}))
+);
+alert("Projet sauvegardé ✅");
+}
+
+function exportPNG(){
+const link=document.createElement("a");
+link.download="design5g.png";
+link.href=canvas.toDataURL();
+link.click();
+}
+
+draw();
+</script>
+
+</body>
+</html>
