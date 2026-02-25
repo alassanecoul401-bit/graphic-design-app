@@ -2,21 +2,21 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Design 5G</title>
 
 <style>
 body{
 margin:0;
+background:#0f0f0f;
 font-family:Arial;
-background:#111;
 color:white;
-text-align:center;
 }
 
 header{
 background:#000;
-padding:12px;
+padding:14px;
+text-align:center;
 font-size:20px;
 font-weight:bold;
 }
@@ -24,146 +24,177 @@ font-weight:bold;
 .toolbar{
 display:flex;
 gap:8px;
-overflow:auto;
+overflow-x:auto;
 padding:10px;
-background:#1c1c1c;
+background:#1a1a1a;
 }
 
-button{
+button,input{
 padding:10px;
 border:none;
 border-radius:8px;
-background:#00c2ff;
+background:#00b7ff;
 color:white;
 font-weight:bold;
 }
 
-#canvasBox{
+#editor{
 display:flex;
 justify-content:center;
-margin-top:10px;
+margin-top:15px;
 }
 
 canvas{
 background:white;
+border-radius:15px;
 touch-action:none;
-border-radius:12px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
 }
 </style>
 </head>
 
 <body>
 
-<header>🎨 Design 5G Editor</header>
+<header>🎨 Design 5G — Création Graphique</header>
 
 <div class="toolbar">
-<button onclick="addText()">Texte</button>
-<input type="file" id="imgLoader" accept="image/*">
-<button onclick="changeColor()">Couleur</button>
-<button onclick="saveProject()">Sauvegarder</button>
+<button onclick="addText()">Ajouter Texte</button>
+<input type="file" id="imageInput" accept="image/*">
+<button onclick="addSticker()">Sticker ⭐</button>
+<button onclick="randomColor()">Couleur</button>
+<button onclick="saveDesign()">Sauvegarder</button>
 <button onclick="exportPNG()">Export PNG</button>
 </div>
 
-<div id="canvasBox">
-<canvas id="canvas" width="350" height="500"></canvas>
+<div id="editor">
+<canvas id="canvas" width="360" height="520"></canvas>
 </div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-let elements = [];
-let selected = null;
+let objects=[];
+let selected=null;
+let dragging=false;
 
-function draw(){
+/* ===== DESSIN ===== */
+function render(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
-elements.forEach(el=>{
-if(el.type==="text"){
-ctx.fillStyle=el.color;
-ctx.font=el.size+"px Arial";
-ctx.fillText(el.text,el.x,el.y);
+objects.forEach(o=>{
+if(o.type==="text"){
+ctx.fillStyle=o.color;
+ctx.font=o.size+"px Arial";
+ctx.fillText(o.text,o.x,o.y);
 }
-if(el.type==="image"){
-ctx.drawImage(el.img,el.x,el.y,el.w,el.h);
+if(o.type==="image"){
+ctx.drawImage(o.img,o.x,o.y,o.w,o.h);
 }
 });
 }
 
+/* ===== TEXTE ===== */
 function addText(){
-elements.push({
+const text=prompt("Votre texte:");
+if(!text) return;
+
+objects.push({
 type:"text",
-text:"Design 5G",
-x:100,
-y:100,
-size:30,
+text:text,
+x:120,
+y:120,
+size:28,
 color:"#000"
 });
-draw();
+render();
 }
 
-document.getElementById("imgLoader").addEventListener("change",e=>{
+/* ===== IMAGE ===== */
+document.getElementById("imageInput").addEventListener("change",e=>{
 const file=e.target.files[0];
+if(!file) return;
+
 const img=new Image();
 img.onload=function(){
-elements.push({
+objects.push({
 type:"image",
 img:img,
-x:50,
-y:50,
+x:80,
+y:80,
 w:150,
 h:150
 });
-draw();
+render();
 };
 img.src=URL.createObjectURL(file);
 });
 
-function changeColor(){
-if(!elements.length) return;
-elements[elements.length-1].color=
-"#"+Math.floor(Math.random()*16777215).toString(16);
-draw();
+/* ===== STICKER ===== */
+function addSticker(){
+const img=new Image();
+img.onload=function(){
+objects.push({
+type:"image",
+img:img,
+x:100,
+y:150,
+w:80,
+h:80
+});
+render();
+};
+img.src="https://cdn-icons-png.flaticon.com/512/616/616408.png";
 }
 
-let dragging=false;
+/* ===== COULEUR ===== */
+function randomColor(){
+if(!objects.length) return;
+let last=objects[objects.length-1];
+if(last.type==="text"){
+last.color="#"+Math.floor(Math.random()*16777215).toString(16);
+render();
+}
+}
 
-canvas.addEventListener("touchstart",e=>{
-const t=e.touches[0];
-selected=elements[elements.length-1];
+/* ===== DRAG MOBILE ===== */
+canvas.addEventListener("touchstart",()=>{
+selected=objects[objects.length-1];
 dragging=true;
 });
 
 canvas.addEventListener("touchmove",e=>{
-if(!dragging || !selected) return;
+if(!dragging||!selected)return;
+
 const rect=canvas.getBoundingClientRect();
 selected.x=e.touches[0].clientX-rect.left;
 selected.y=e.touches[0].clientY-rect.top;
-draw();
+
+render();
 });
 
-canvas.addEventListener("touchend",()=>{
-dragging=false;
-});
+canvas.addEventListener("touchend",()=>dragging=false);
 
-function saveProject(){
-localStorage.setItem("design5g",
-JSON.stringify(elements.map(e=>{
-if(e.type==="text") return e;
-return {type:"image",x:e.x,y:e.y,w:e.w,h:e.h};
+/* ===== SAUVEGARDE ===== */
+function saveDesign(){
+localStorage.setItem("design5g_project",
+JSON.stringify(objects.map(o=>{
+if(o.type==="text") return o;
+return {type:"image",x:o.x,y:o.y,w:o.w,h:o.h};
 }))
 );
-alert("Projet sauvegardé ✅");
+alert("Design sauvegardé ✅");
 }
 
+/* ===== EXPORT ===== */
 function exportPNG(){
 const link=document.createElement("a");
 link.download="design5g.png";
-link.href=canvas.toDataURL();
+link.href=canvas.toDataURL("image/png");
 link.click();
 }
 
-draw();
+render();
 </script>
 
 </body>
