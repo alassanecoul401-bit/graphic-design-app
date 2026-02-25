@@ -1,115 +1,64 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Design 5G</title>
+import React, { useState } from "react";
+import { View, Text, Button, TextInput, StyleSheet, Image } from "react-native";
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+export default function App() {
+  const [text, setText] = useState("");
+  const [design, setDesign] = useState("");
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:#f0f2f5;
+  const createDesign = () => {
+    setDesign(text);
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Création Digitale</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Écris ton texte créatif..."
+        value={text}
+        onChangeText={setText}
+      />
+
+      <Button title="Créer Design" onPress={createDesign} />
+
+      {design !== "" && (
+        <View style={styles.designBox}>
+          <Text style={styles.designText}>{design}</Text>
+        </View>
+      )}
+    </View>
+  );
 }
 
-/* HEADER APP */
-.header{
-background:linear-gradient(90deg,#00c6ff,#7b2cff);
-color:white;
-padding:15px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-letter-spacing:1px;
-}
-
-.toolbar{
-background:white;
-padding:10px;
-display:flex;
-flex-wrap:wrap;
-gap:8px;
-justify-content:center;
-box-shadow:0 2px 8px rgba(0,0,0,.2);
-}
-
-canvas{
-border:1px solid #ccc;
-display:block;
-margin:20px auto;
-background:white;
-border-radius:10px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-🚀 DESIGN 5G
-</div>
-
-<div class="toolbar">
-<button onclick="addText()">📝 Texte</button>
-<input type="file" id="imgUpload">
-<input type="color" id="color" value="#000000">
-<button onclick="deleteObj()">🗑 Supprimer</button>
-<button onclick="save()">💾 Sauver</button>
-<button onclick="load()">📂 Charger</button>
-</div>
-
-<canvas id="c" width="380" height="500"></canvas>
-
-<script>
-const canvas = new fabric.Canvas('c');
-
-/* Ajouter texte */
-function addText(){
-let text = new fabric.IText('Design 5G',{
-left:120,
-top:120,
-fill:document.getElementById("color").value,
-fontSize:28,
-fontWeight:"bold"
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  input: {
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 15,
+    borderRadius: 8,
+  },
+  designBox: {
+    marginTop: 20,
+    padding: 20,
+    backgroundColor: "#f2f2f2",
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  designText: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
 });
-canvas.add(text);
-}
-
-/* Ajouter image */
-document.getElementById("imgUpload").onchange=function(e){
-const reader=new FileReader();
-reader.onload=function(f){
-fabric.Image.fromURL(f.target.result,function(img){
-img.scaleToWidth(150);
-canvas.add(img);
-});
-};
-reader.readAsDataURL(e.target.files[0]);
-};
-
-/* Supprimer objet */
-function deleteObj(){
-const obj = canvas.getActiveObject();
-if(obj) canvas.remove(obj);
-}
-
-/* Sauvegarder */
-function save(){
-localStorage.setItem("design5g",
-JSON.stringify(canvas.toJSON()));
-alert("Projet Design 5G sauvegardé !");
-}
-
-/* Charger */
-function load(){
-canvas.loadFromJSON(
-localStorage.getItem("design5g"),
-canvas.renderAll.bind(canvas)
-);
-}
-</script>
-
-</body>
-</html>
