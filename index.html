@@ -1,152 +1,92 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Mini Canva App</title>
+<title>Canva Dev</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 
 <style>
 body{
 margin:0;
 font-family:Arial;
-background:#f3f4f7;
+background:#f0f2f5;
 }
 
-/* HEADER */
-.header{
-padding:25px;
-text-align:center;
-background:linear-gradient(90deg,#4facfe,#a64bf4);
-color:white;
-}
-
-.search{
-margin:15px;
+.toolbar{
 background:white;
-padding:12px;
-border-radius:25px;
-box-shadow:0 2px 6px rgba(0,0,0,.2);
-}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:15px;
-padding:15px;
-}
-
-.card{
-background:white;
-border-radius:15px;
-padding:20px;
-text-align:center;
-box-shadow:0 2px 6px rgba(0,0,0,.15);
-cursor:pointer;
-}
-
-/* EDITOR */
-#editor{
-display:none;
-height:100vh;
-flex-direction:column;
+padding:10px;
+display:flex;
+gap:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
 canvas{
+border:1px solid #ccc;
+display:block;
+margin:20px auto;
 background:white;
-margin:auto;
-border:2px solid #ccc;
-}
-
-/* BOTTOM MENU */
-.bottom{
-position:fixed;
-bottom:0;
-width:100%;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:12px;
-box-shadow:0 -2px 8px rgba(0,0,0,.2);
-}
-
-.btn{
-cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<!-- HOME -->
-<div id="home">
-<div class="header">
-<h2>Qu’allez-vous créer aujourd’hui ?</h2>
-</div>
-
-<div class="search">🔎 Rechercher des modèles</div>
-
-<div class="grid">
-<div class="card" onclick="openEditor()">Design</div>
-<div class="card" onclick="openEditor()">Réseaux</div>
-<div class="card" onclick="openEditor()">Vidéo</div>
-<div class="card" onclick="openEditor()">Photo</div>
-<div class="card" onclick="openEditor()">Présentation</div>
-<div class="card" onclick="openEditor()">Doc</div>
-</div>
-</div>
-
-<!-- EDITOR -->
-<div id="editor">
-<button onclick="goHome()">⬅ Retour</button>
-<canvas id="canvas" width="350" height="450"></canvas>
-
-<div style="text-align:center">
+<div class="toolbar">
+<button onclick="addText()">📝 Texte</button>
+<input type="file" id="imgUpload">
 <input type="color" id="color">
-<button onclick="addText()">Texte</button>
-<button onclick="download()">Télécharger</button>
-</div>
+<button onclick="save()">💾 Sauver</button>
+<button onclick="load()">📂 Charger</button>
+<button onclick="deleteObj()">🗑 Supprimer</button>
 </div>
 
-<!-- MENU BAS -->
-<div class="bottom">
-<div class="btn">🏠 Accueil</div>
-<div class="btn" onclick="openEditor()">➕ Créer</div>
-<div class="btn">📁 Designs</div>
-<div class="btn">⚙️ Plus</div>
-</div>
+<canvas id="c" width="400" height="500"></canvas>
 
 <script>
-const home=document.getElementById("home");
-const editor=document.getElementById("editor");
+const canvas = new fabric.Canvas('c');
 
-function openEditor(){
-home.style.display="none";
-editor.style.display="flex";
-}
-
-function goHome(){
-editor.style.display="none";
-home.style.display="block";
-}
-
-/* CANVAS */
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-
+/* Ajouter texte */
 function addText(){
-let t=prompt("Votre texte");
-if(!t) return;
-ctx.fillStyle=document.getElementById("color").value;
-ctx.font="25px Arial";
-ctx.fillText(t,40,80);
+let text = new fabric.IText('Double clique pour modifier',{
+left:100,
+top:100,
+fill:document.getElementById("color").value,
+fontSize:24
+});
+canvas.add(text);
 }
 
-function download(){
-let link=document.createElement("a");
-link.download="design.png";
-link.href=canvas.toDataURL();
-link.click();
+/* Ajouter image */
+document.getElementById("imgUpload").onchange=function(e){
+const reader=new FileReader();
+reader.onload=function(f){
+fabric.Image.fromURL(f.target.result,function(img){
+img.scaleToWidth(150);
+canvas.add(img);
+});
+};
+reader.readAsDataURL(e.target.files[0]);
+};
+
+/* Supprimer */
+function deleteObj(){
+canvas.remove(canvas.getActiveObject());
+}
+
+/* Sauvegarde */
+function save(){
+localStorage.setItem("design",
+JSON.stringify(canvas.toJSON()));
+alert("Design sauvegardé !");
+}
+
+/* Charger */
+function load(){
+canvas.loadFromJSON(
+localStorage.getItem("design"),
+canvas.renderAll.bind(canvas)
+);
 }
 </script>
 
