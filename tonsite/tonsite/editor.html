@@ -1,0 +1,112 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Graphic Design App</title><!-- Google Fonts --><link href="https://fonts.googleapis.com/css2?family=Poppins&family=Montserrat&family=Lobster&family=Playfair+Display&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script><style>
+body{
+  font-family:Poppins;
+  text-align:center;
+  background:#f3f4f6;
+}
+
+.controls{
+  background:white;
+  padding:10px;
+  border-radius:10px;
+  margin:10px auto;
+  width:90%;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+canvas{
+  border:2px solid #333;
+  background:white;
+}
+button{
+  margin:3px;
+  padding:6px 10px;
+  border:none;
+  background:#4f46e5;
+  color:white;
+  border-radius:6px;
+}
+</style></head><body><h2>🎨 Graphic Design App</h2><div class="controls"><input type="text" id="textInput" placeholder="Ton texte">
+<button onclick="addText()">Ajouter texte</button><br><br>
+
+<input type="file" id="imageLoader"><br><br>
+
+<input type="color" id="colorPicker">
+<button onclick="changeTextColor()">Couleur</button><select id="fontFamily">
+<option value="Poppins">Poppins</option>
+<option value="Montserrat">Montserrat</option>
+<option value="Lobster">Lobster</option>
+<option value="Playfair Display">Playfair</option>
+</select>
+<button onclick="changeFont()">Police</button><input type="number" id="fontSize" value="30">
+<button onclick="changeFontSize()">Taille</button></div><canvas id="canvas" width="350" height="300"></canvas>
+
+<br><br>
+
+<button onclick="downloadDesign()">Télécharger Design</button>
+
+<script>
+
+const canvas = new fabric.Canvas('canvas');
+
+function addText(){
+  const textValue = document.getElementById("textInput").value;
+
+  const text = new fabric.IText(textValue || "Nouveau texte",{
+    left:100,
+    top:100,
+    fill:"#000",
+    fontSize:30,
+    fontFamily:"Poppins"
+  });
+
+  canvas.add(text);
+}
+
+function changeTextColor(){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type==="i-text"){
+    obj.set("fill",document.getElementById("colorPicker").value);
+    canvas.renderAll();
+  }
+}
+
+function changeFont(){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type==="i-text"){
+    obj.set("fontFamily",document.getElementById("fontFamily").value);
+    canvas.renderAll();
+  }
+}
+
+function changeFontSize(){
+  const obj = canvas.getActiveObject();
+  if(obj && obj.type==="i-text"){
+    obj.set("fontSize",parseInt(document.getElementById("fontSize").value));
+    canvas.renderAll();
+  }
+}
+
+document.getElementById('imageLoader').addEventListener('change', function(e){
+  const reader = new FileReader();
+  reader.onload = function(event){
+    fabric.Image.fromURL(event.target.result,function(img){
+      img.scaleToWidth(150);
+      canvas.add(img);
+    });
+  };
+  reader.readAsDataURL(e.target.files[0]);
+});
+
+function downloadDesign(){
+  const link=document.createElement('a');
+  link.download='design.png';
+  link.href=canvas.toDataURL();
+  link.click();
+}
+
+</script></body>
+</html>
