@@ -1,103 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Graphic Design App</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&family=Montserrat&display=swap" rel="stylesheet">
-
-<style>
-body{
-margin:0;
-font-family:Poppins;
-display:flex;
-height:100vh;
-}
-
-#tools{
-width:230px;
-background:#111;
-color:white;
-padding:15px;
-}
-
-button,select,input{
-width:100%;
-margin:5px 0;
-padding:8px;
-border:none;
-border-radius:6px;
-}
-
-#canvasContainer{
-flex:1;
-background:#eee;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-#canvas{
-width:900px;
-height:600px;
-background:white;
-position:relative;
-transform-origin:center;
-}
-
-.element{
-position:absolute;
-cursor:move;
-padding:5px;
-border:1px dashed transparent;
-}
-
-.element.selected{
-border:1px dashed blue;
-}
-
-.resize{
-width:10px;
-height:10px;
-background:blue;
-position:absolute;
-right:-5px;
-bottom:-5px;
-cursor:se-resize;
-}
-</style>
-</head>
-
-<body>
-
-<div id="tools">
-<h3>🎨 Outils</h3>
-
-<button onclick="addText()">Ajouter texte</button>
-
-<select id="fontSelect" onchange="changeFont()">
-<option>Poppins</option>
-<option>Roboto</option>
-<option>Montserrat</option>
-</select>
-
-<input type="color" onchange="changeColor(this.value)">
-<button onclick="deleteElement()">🗑 Supprimer</button>
-
-<hr>
-
-<button onclick="zoomIn()">Zoom +</button>
-<button onclick="zoomOut()">Zoom -</button>
-
-<button onclick="downloadImage()">⬇ Télécharger PNG</button>
-
-<input type="file" accept="image/*" onchange="addImage(event)">
-</div>
-
-<div id="canvasContainer">
-<div id="canvas"></div>
-</div>
-
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
@@ -105,21 +5,67 @@ let selected=null;
 let zoom=1;
 const canvas=document.getElementById("canvas");
 
+// ======================
+// SAUVEGARDE AUTOMATIQUE
+// ======================
+function saveDesign(){
+localStorage.setItem("design",canvas.innerHTML);
+}
+
+function loadDesign(){
+let data=localStorage.getItem("design");
+if(data){
+canvas.innerHTML=data;
+restoreEvents();
+}
+}
+
+window.onload=loadDesign;
+
+// ======================
+// MODELES (TEMPLATES)
+// ======================
+function templatePoster(){
+canvas.innerHTML="";
+addTextCustom("MON ÉVÉNEMENT",300,80,"40px","#111");
+addTextCustom("Bienvenue à tous",320,200,"22px","#555");
+saveDesign();
+}
+
+function templateInstagram(){
+canvas.innerHTML="";
+canvas.style.width="600px";
+canvas.style.height="600px";
+addTextCustom("Promo -50%",180,250,"45px","red");
+saveDesign();
+}
+
+// ======================
 // TEXTE
+// ======================
 function addText(){
+addTextCustom("Double clique pour modifier",50,50,"20px","#000");
+}
+
+function addTextCustom(text,x,y,size,color){
 let el=document.createElement("div");
 el.className="element";
-el.innerText="Double clique pour modifier";
+el.innerText=text;
 el.contentEditable=true;
-el.style.left="50px";
-el.style.top="50px";
+el.style.left=x+"px";
+el.style.top=y+"px";
+el.style.fontSize=size;
+el.style.color=color;
 
 addResize(el);
 addEvents(el);
 canvas.appendChild(el);
+saveDesign();
 }
 
+// ======================
 // IMAGE
+// ======================
 function addImage(e){
 let file=e.target.files[0];
 let img=document.createElement("img");
@@ -132,9 +78,12 @@ img.style.top="80px";
 addResize(img);
 addEvents(img);
 canvas.appendChild(img);
+saveDesign();
 }
 
-// SELECTION + DRAG
+// ======================
+// EVENTS
+// ======================
 function addEvents(el){
 el.onclick=(ev)=>{
 ev.stopPropagation();
@@ -156,10 +105,13 @@ document.onmousemove=(e)=>{
 if(!isDown || selected!==el) return;
 el.style.left=(e.pageX-canvas.offsetLeft-offsetX)+"px";
 el.style.top=(e.pageY-canvas.offsetTop-offsetY)+"px";
+saveDesign();
 };
 }
 
+// ======================
 // RESIZE
+// ======================
 function addResize(el){
 let box=document.createElement("div");
 box.className="resize";
@@ -177,39 +129,49 @@ document.onmouseup=()=>resizing=false;
 document.onmousemove=(e)=>{
 if(!resizing || selected!==el) return;
 el.style.width=e.pageX-el.offsetLeft+"px";
+saveDesign();
 };
 }
 
-// SELECT
+// ======================
+function restoreEvents(){
+document.querySelectorAll(".element").forEach(el=>{
+addResize(el);
+addEvents(el);
+});
+}
+
+// ======================
 function select(el){
 document.querySelectorAll(".element").forEach(e=>e.classList.remove("selected"));
 selected=el;
 el.classList.add("selected");
 }
 
-// DELETE
 function deleteElement(){
 if(selected){
 selected.remove();
 selected=null;
+saveDesign();
 }
 }
 
-// FONT
+// ======================
 function changeFont(){
 if(selected){
 selected.style.fontFamily=document.getElementById("fontSelect").value;
+saveDesign();
 }
 }
 
-// COLOR
 function changeColor(color){
 if(selected){
 selected.style.color=color;
+saveDesign();
 }
 }
 
-// ZOOM
+// ======================
 function zoomIn(){
 zoom+=0.1;
 canvas.style.transform="scale("+zoom+")";
@@ -220,7 +182,7 @@ zoom-=0.1;
 canvas.style.transform="scale("+zoom+")";
 }
 
-// DOWNLOAD
+// ======================
 function downloadImage(){
 html2canvas(canvas).then(c=>{
 let link=document.createElement("a");
@@ -235,6 +197,3 @@ document.querySelectorAll(".element").forEach(e=>e.classList.remove("selected"))
 selected=null;
 }
 </script>
-
-</body>
-</html>
