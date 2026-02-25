@@ -1,117 +1,150 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Design 5G</title>
+<title>Graphic Design App</title>
 
-<!-- ===== STYLE ===== -->
+<!-- ====== GOOGLE FONT ====== -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
 <style>
 
-/* ===== RESET ===== */
+/* ===============================
+   RESET & BASE
+=================================*/
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins', sans-serif;
 }
 
 body{
-background:#f3f4f6;
-overflow:hidden;
+    background:#f4f6f9;
+    color:#222;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
 }
 
-/* ===== HOME ===== */
-#home{
-padding:20px;
-text-align:center;
-height:100vh;
-overflow:auto;
+/* ===============================
+   HEADER
+=================================*/
+header{
+    background:#111827;
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.title{
-font-size:28px;
-font-weight:bold;
-margin-bottom:20px;
+header h1{
+    font-size:18px;
+    font-weight:600;
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-gap:15px;
+/* ===============================
+   MENU
+=================================*/
+nav{
+    display:flex;
+    gap:10px;
 }
 
-.card{
-background:#fff;
-padding:25px;
-border-radius:16px;
-box-shadow:0 6px 18px rgba(0,0,0,.1);
-cursor:pointer;
-transition:.2s;
+nav button{
+    background:#2563eb;
+    border:none;
+    color:white;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
 }
 
-.card:active{
-transform:scale(.96);
+nav button:hover{
+    background:#1d4ed8;
 }
 
-/* ===== EDITOR ===== */
-#editor{
-display:none;
-height:100vh;
+/* ===============================
+   MAIN LAYOUT
+=================================*/
+main{
+    flex:1;
+    display:flex;
+    overflow:hidden;
 }
 
-/* sidebar */
-#sidebar{
-position:fixed;
-left:0;
-top:0;
-width:85px;
-height:100%;
-background:#111;
-display:flex;
-flex-direction:column;
-align-items:center;
-padding-top:10px;
+/* ===== Sidebar ===== */
+.sidebar{
+    width:220px;
+    background:white;
+    border-right:1px solid #ddd;
+    padding:15px;
 }
 
-.tool{
-background:#fff;
-margin:8px 0;
-padding:12px;
-border-radius:12px;
-font-size:12px;
-text-align:center;
-cursor:pointer;
-width:65px;
+.sidebar h3{
+    margin-bottom:10px;
+    font-size:15px;
 }
 
-/* canvas zone */
-#workspace{
-margin-left:85px;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
+.sidebar button{
+    width:100%;
+    margin-bottom:10px;
+    padding:10px;
+    border:none;
+    background:#e5e7eb;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
 }
 
-canvas{
-background:#fff;
-box-shadow:0 0 30px rgba(0,0,0,.2);
-touch-action:none;
+.sidebar button:hover{
+    background:#d1d5db;
 }
 
-/* controls */
-#controls{
-position:fixed;
-bottom:0;
-left:85px;
-right:0;
-background:#fff;
-padding:10px;
-display:flex;
-gap:10px;
-box-shadow:0 -3px 12px rgba(0,0,0,.15);
+/* ===== Canvas Area ===== */
+.canvas-area{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#e5e7eb;
+}
+
+/* DESIGN ZONE */
+#designCanvas{
+    background:white;
+    width:90%;
+    max-width:700px;
+    height:450px;
+    border-radius:10px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.1);
+    position:relative;
+    overflow:hidden;
+}
+
+/* TEXT ELEMENT */
+.text-element{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    font-size:28px;
+    font-weight:600;
+    cursor:move;
+}
+
+/* ===============================
+   FOOTER
+=================================*/
+footer{
+    background:#111827;
+    color:white;
+    text-align:center;
+    padding:10px;
+    font-size:13px;
 }
 
 </style>
@@ -119,163 +152,109 @@ box-shadow:0 -3px 12px rgba(0,0,0,.15);
 
 <body>
 
-<!-- ===== HOME ===== -->
-<section id="home">
-<div class="title">🔥 Design 5G</div>
+<!-- ===============================
+     HEADER
+=================================-->
+<header>
+    <h1>🎨 Graphic Design App</h1>
 
-<div class="grid">
-<div class="card" onclick="openEditor()">Instagram Post</div>
-<div class="card" onclick="openEditor()">Poster</div>
-</div>
-</section>
+    <nav>
+        <button onclick="addText()">Ajouter Texte</button>
+        <button onclick="changeColor()">Couleur</button>
+        <button onclick="downloadDesign()">Télécharger</button>
+    </nav>
+</header>
 
-<!-- ===== EDITOR ===== -->
-<section id="editor">
+<!-- ===============================
+     MAIN
+=================================-->
+<main>
 
-<div id="sidebar">
-<div class="tool" onclick="addText()">Texte</div>
-<div class="tool" onclick="addImage()">Image</div>
-<div class="tool" onclick="downloadPNG()">PNG</div>
-</div>
+    <!-- LEFT MENU -->
+    <aside class="sidebar">
+        <h3>Outils</h3>
 
-<div id="workspace">
-<canvas id="canvas" width="400" height="400"></canvas>
-</div>
+        <button onclick="addText()">➕ Texte</button>
+        <button onclick="changeFont()">🔤 Police</button>
+        <button onclick="changeColor()">🎨 Couleur</button>
+    </aside>
 
-<div id="controls">
-<input type="color" id="colorPicker">
-<input type="range" id="sizeSlider" min="20" max="80">
-</div>
+    <!-- DESIGN AREA -->
+    <section class="canvas-area">
+        <div id="designCanvas"></div>
+    </section>
 
-<input type="file" id="imgLoader" hidden accept="image/*">
+</main>
 
-</section>
+<!-- ===============================
+     FOOTER
+=================================-->
+<footer>
+    © 2026 Graphic Design App — Mode Pro
+</footer>
 
-<!-- ===== SCRIPT ===== -->
+<!-- ===============================
+     JAVASCRIPT
+=================================-->
 <script>
 
-/* ===== STATE ===== */
-const home=document.getElementById("home");
-const editor=document.getElementById("editor");
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+let currentText = null;
 
-let elements=[];
-let selected=null;
-let offsetX=0,offsetY=0;
-
-/* ===== NAVIGATION ===== */
-function openEditor(){
-home.style.display="none";
-editor.style.display="block";
-draw();
-}
-
-/* ===== DRAW ===== */
-function draw(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-elements.forEach(el=>{
-if(el.type==="text"){
-ctx.fillStyle=el.color;
-ctx.font=el.size+"px Arial";
-ctx.fillText(el.text,el.x,el.y);
-}
-
-if(el.type==="image"){
-ctx.drawImage(el.img,el.x,el.y,el.w,el.h);
-}
-});
-}
-
-/* ===== ADD TEXT ===== */
+/* Ajouter texte */
 function addText(){
-elements.push({
-type:"text",
-text:"Design 5G",
-x:150,
-y:200,
-size:40,
-color:"#000"
-});
-draw();
+    const canvas = document.getElementById("designCanvas");
+
+    const text = document.createElement("div");
+    text.className = "text-element";
+    text.contentEditable = true;
+    text.innerText = "Votre texte";
+
+    makeDraggable(text);
+
+    canvas.appendChild(text);
+    currentText = text;
 }
 
-/* ===== ADD IMAGE ===== */
-const imgLoader=document.getElementById("imgLoader");
-
-function addImage(){
-imgLoader.click();
+/* Changer couleur */
+function changeColor(){
+    if(!currentText) return;
+    currentText.style.color =
+        "#" + Math.floor(Math.random()*16777215).toString(16);
 }
 
-imgLoader.onchange=e=>{
-const file=e.target.files[0];
-const img=new Image();
-img.onload=()=>{
-elements.push({
-type:"image",
-img:img,
-x:100,
-y:100,
-w:150,
-h:150
-});
-draw();
-};
-img.src=URL.createObjectURL(file);
-};
+/* Changer police */
+function changeFont(){
+    if(!currentText) return;
 
-/* ===== DRAG ===== */
-canvas.onpointerdown=e=>{
-const rect=canvas.getBoundingClientRect();
-const x=e.clientX-rect.left;
-const y=e.clientY-rect.top;
+    const fonts = ["Poppins","Arial","Courier New","Georgia"];
+    const randomFont = fonts[Math.floor(Math.random()*fonts.length)];
 
-selected=[...elements].reverse().find(el=>{
-if(el.type==="text")
-return x>el.x && x<el.x+200 && y>el.y-40 && y<el.y;
-
-if(el.type==="image")
-return x>el.x && x<el.x+el.w && y>el.y && y<el.y+el.h;
-});
-
-if(selected){
-offsetX=x-selected.x;
-offsetY=y-selected.y;
+    currentText.style.fontFamily = randomFont;
 }
-};
 
-canvas.onpointermove=e=>{
-if(!selected)return;
-const rect=canvas.getBoundingClientRect();
-selected.x=e.clientX-rect.left-offsetX;
-selected.y=e.clientY-rect.top-offsetY;
-draw();
-};
-
-canvas.onpointerup=()=>selected=null;
-
-/* ===== CONTROLS ===== */
-document.getElementById("colorPicker").oninput=e=>{
-if(selected?.type==="text"){
-selected.color=e.target.value;
-draw();
+/* Télécharger design */
+function downloadDesign(){
+    alert("Fonction export bientôt disponible 🚀");
 }
-};
 
-document.getElementById("sizeSlider").oninput=e=>{
-if(selected?.type==="text"){
-selected.size=e.target.value;
-draw();
-}
-};
+/* Drag & Move */
+function makeDraggable(el){
+    let offsetX, offsetY;
 
-/* ===== EXPORT ===== */
-function downloadPNG(){
-const link=document.createElement("a");
-link.download="design5g.png";
-link.href=canvas.toDataURL("image/png",1);
-link.click();
+    el.onmousedown = function(e){
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+
+        document.onmousemove = function(e){
+            el.style.left = (e.pageX - offsetX) + "px";
+            el.style.top = (e.pageY - offsetY) + "px";
+            el.style.transform = "none";
+        }
+
+        document.onmouseup = function(){
+            document.onmousemove = null;
+        }
+    }
 }
 
 </script>
