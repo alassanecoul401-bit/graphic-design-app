@@ -2,139 +2,174 @@ import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  StyleSheet,
+  Pressable
 } from "react-native";
 
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+const Stack = createNativeStackNavigator();
+
+/* ===== DONNÉES IMMOBILIER ===== */
+
 const DATA = [
-  { id:"1", title:"Story Instagram", icon:require("../assets/icons/story.png")},
-  { id:"2", title:"Publication Instagram", icon:require("../assets/icons/post.png")},
-  { id:"3", title:"Reel Instagram", icon:require("../assets/icons/reel.png")},
-  { id:"4", title:"Publication Facebook", icon:require("../assets/icons/facebook.png")},
-  { id:"5", title:"Miniature YouTube", icon:require("../assets/icons/youtube.png")},
-  { id:"6", title:"Logo", icon:require("../assets/icons/logo.png")},
-  { id:"7", title:"Flyer", icon:require("../assets/icons/flyer.png")},
-  { id:"8", title:"Carte visite", icon:require("../assets/icons/card.png")},
-  { id:"9", title:"Sticker", icon:require("../assets/icons/sticker.png")}
+  {
+    id: "1",
+    title: "Villa moderne",
+    price: "85 000 000 FCFA",
+    location: "Abidjan, Cocody",
+    image: require("./assets/house1.jpg")
+  },
+  {
+    id: "2",
+    title: "Appartement luxe",
+    price: "45 000 000 FCFA",
+    location: "Abidjan, Marcory",
+    image: require("./assets/house2.jpg")
+  },
+  {
+    id: "3",
+    title: "Maison familiale",
+    price: "30 000 000 FCFA",
+    location: "Yopougon",
+    image: require("./assets/house3.jpg")
+  }
 ];
 
-export default function CreateScreen({navigation}) {
+/* ===== ÉCRAN ACCUEIL ===== */
 
-  const renderItem = ({item}) => (
+function HomeScreen({ navigation }) {
+
+  const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={()=>navigation.navigate("Editor")}
+      onPress={() => navigation.navigate("Détail", { item })}
     >
-      <View style={styles.circle}>
-        <Image source={item.icon} style={styles.icon}/>
-      </View>
+      <Image source={item.image} style={styles.image} />
 
-      <Text style={styles.label}>{item.title}</Text>
+      <View style={{ padding: 12 }}>
+        <Text style={styles.price}>{item.price}</Text>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.location}>{item.location}</Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
+    <FlatList
+      data={DATA}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+    />
+  );
+}
+
+/* ===== ÉCRAN DÉTAIL ===== */
+
+function DetailScreen({ route }) {
+
+  const { item } = route.params;
+
+  return (
     <View style={styles.container}>
+      <Image source={item.image} style={styles.detailImage} />
 
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.avatar}>
-          <Text style={{color:"#fff"}}>A</Text>
-        </View>
-        <Text style={styles.title}>Créer</Text>
-      </View>
+      <Text style={styles.detailPrice}>{item.price}</Text>
+      <Text style={styles.detailTitle}>{item.title}</Text>
+      <Text style={styles.detailLocation}>{item.location}</Text>
 
-      {/* GRID */}
-      <FlatList
-        data={DATA}
-        renderItem={renderItem}
-        keyExtractor={item=>item.id}
-        numColumns={3}
-        contentContainerStyle={{paddingBottom:120}}
-      />
-
+      <Pressable style={styles.button}>
+        <Text style={{ color: "#fff", fontWeight: "bold" }}>
+          Contacter l'agent
+        </Text>
+      </Pressable>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+/* ===== APP ===== */
 
-  container:{
-    flex:1,
-    backgroundColor:"#f5f5f7",
-    paddingTop:50
-  },
-
-  header:{
-    flexDirection:"row",
-    alignItems:"center",
-    paddingHorizontal:20,
-    marginBottom:10
-  },
-
-  avatar:{
-    width:40,
-    height:40,
-    borderRadius:20,
-    backgroundColor:"#ff4d7e",
-    justifyContent:"center",
-    alignItems:"center",
-    marginRight:10
-  },
-
-  title:{
-    fontSize:22,
-    fontWeight:"bold"
-  },
-
-  card:{
-    flex:1,
-    alignItems:"center",
-    marginVertical:15
-  },
-
-  circle:{
-    width:90,
-    height:90,
-    borderRadius:45,
-    backgroundColor:"#eadcff",
-    justifyContent:"center",
-    alignItems:"center",
-    elevation:3
-  },
-
-  icon:{
-    width:50,
-    height:50,
-    resizeMode:"contain"
-  },
-
-  label:{
-    marginTop:8,
-    textAlign:"center",
-    fontSize:13,
-    color:"#444"
-  }
-});
-npm install @react-navigation/native
-npm install @react-navigation/bottom-tabs
-npm install react-native-screens react-native-safe-area-context
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import CreateScreen from "./CreateScreen";
-import EditorScreen from "./EditorScreen";
-
-const Tab = createBottomTabNavigator();
-
-export default function MainTabs(){
-  return(
-    <Tab.Navigator screenOptions={{headerShown:false}}>
-      <Tab.Screen name="Créer" component={CreateScreen}/>
-      <Tab.Screen name="Designs" component={EditorScreen}/>
-      <Tab.Screen name="Modèles" component={CreateScreen}/>
-      <Tab.Screen name="Plus" component={CreateScreen}/>
-    </Tab.Navigator>
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Immobilier" component={HomeScreen} />
+        <Stack.Screen name="Détail" component={DetailScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
+
+/* ===== STYLES ===== */
+
+const styles = StyleSheet.create({
+
+  card: {
+    backgroundColor: "#fff",
+    margin: 12,
+    borderRadius: 15,
+    overflow: "hidden",
+    elevation: 4
+  },
+
+  image: {
+    width: "100%",
+    height: 180
+  },
+
+  price: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#27ae60"
+  },
+
+  title: {
+    fontSize: 16,
+    marginTop: 4
+  },
+
+  location: {
+    color: "#777",
+    marginTop: 2
+  },
+
+  container: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: "#fff"
+  },
+
+  detailImage: {
+    width: "100%",
+    height: 260,
+    borderRadius: 15
+  },
+
+  detailPrice: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#27ae60",
+    marginTop: 15
+  },
+
+  detailTitle: {
+    fontSize: 20,
+    marginTop: 5
+  },
+
+  detailLocation: {
+    color: "#777",
+    marginBottom: 25
+  },
+
+  button: {
+    backgroundColor: "#111",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center"
+  }
+});
