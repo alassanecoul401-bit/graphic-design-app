@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Graphic Design App</title>
+
+<style>
+body{
+  font-family: Arial;
+  text-align:center;
+  background:#f0f0f0;
+}
+
+canvas{
+  border:2px solid black;
+  background:white;
+}
+
+button,input{
+  margin:5px;
+  padding:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>🎨 Graphic Design App</h2>
+
+<input type="text" id="textInput" placeholder="Ton texte">
+<input type="color" id="colorPicker">
+<button onclick="addText()">Ajouter texte</button>
+
+<br>
+
+<input type="file" id="imageLoader">
+
+<br><br>
+
+<canvas id="canvas" width="500" height="400"></canvas>
+
+<br>
+<button onclick="downloadImage()">Télécharger Design</button>
+
+<script>
+let canvas=document.getElementById("canvas");
+let ctx=canvas.getContext("2d");
+
+function addText(){
+ let text=document.getElementById("textInput").value;
+ let color=document.getElementById("colorPicker").value;
+
+ ctx.fillStyle=color;
+ ctx.font="30px Arial";
+ ctx.fillText(text,50,200);
+}
+
+document.getElementById("imageLoader").addEventListener("change",function(e){
+ let reader=new FileReader();
+ reader.onload=function(event){
+   let img=new Image();
+   img.onload=function(){
+     ctx.drawImage(img,50,50,200,200);
+   }
+   img.src=event.target.result;
+ }
+ reader.readAsDataURL(e.target.files[0]);
+});
+
+function downloadImage(){
+ let link=document.createElement("a");
+ link.download="design.png";
+ link.href=canvas.toDataURL();
+ link.click();
+}
+</script>
+
+</body>
+</html>
