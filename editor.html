@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graphic Design App</title>
+
+<!-- Fabric.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  display:flex;
+  height:100vh;
+}
+
+.sidebar{
+  width:220px;
+  background:#1e293b;
+  color:white;
+  padding:15px;
+}
+
+.sidebar button{
+  width:100%;
+  padding:10px;
+  margin-bottom:10px;
+  border:none;
+  background:#38bdf8;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+  border-radius:6px;
+}
+
+.sidebar button:hover{
+  background:#0ea5e9;
+}
+
+.canvas-container{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f1f5f9;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h3>Outils</h3>
+
+  <button onclick="addText()">Ajouter texte</button>
+  <button onclick="addRectangle()">Ajouter forme</button>
+  <button onclick="deleteObject()">Supprimer</button>
+  <button onclick="downloadImage()">Télécharger</button>
+</div>
+
+<div class="canvas-container">
+  <canvas id="canvas" width="800" height="500" style="background:white;border:1px solid #ccc;"></canvas>
+</div>
+
+<script>
+const canvas = new fabric.Canvas('canvas');
+
+function addText(){
+  const text = new fabric.IText('Votre texte', {
+    left:100,
+    top:100,
+    fill:'#000',
+    fontSize:30
+  });
+  canvas.add(text);
+}
+
+function addRectangle(){
+  const rect = new fabric.Rect({
+    left:150,
+    top:150,
+    fill:'blue',
+    width:120,
+    height:80
+  });
+  canvas.add(rect);
+}
+
+function deleteObject(){
+  const active = canvas.getActiveObject();
+  if(active){
+    canvas.remove(active);
+  }
+}
+
+function downloadImage(){
+  const link = document.createElement('a');
+  link.download = 'design.png';
+  link.href = canvas.toDataURL({
+    format:'png'
+  });
+  link.click();
+}
+</script>
+
+</body>
+</html>
