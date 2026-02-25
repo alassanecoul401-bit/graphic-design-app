@@ -2,261 +2,146 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Graphic Design App</title>
-
-<!-- ====== GOOGLE FONT ====== -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<title>Mini Canva PRO</title>
 
 <style>
-
-/* ===============================
-   RESET & BASE
-=================================*/
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Poppins', sans-serif;
-}
-
 body{
-    background:#f4f6f9;
-    color:#222;
-    display:flex;
-    flex-direction:column;
-    height:100vh;
+  font-family: Arial;
+  background:#f4f6f8;
+  text-align:center;
 }
 
-/* ===============================
-   HEADER
-=================================*/
-header{
-    background:#111827;
-    color:white;
-    padding:15px 20px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.toolbar{
+  background:white;
+  padding:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+  margin-bottom:10px;
 }
 
-header h1{
-    font-size:18px;
-    font-weight:600;
+canvas{
+  background:white;
+  border:2px solid #333;
+  cursor:crosshair;
 }
 
-/* ===============================
-   MENU
-=================================*/
-nav{
-    display:flex;
-    gap:10px;
+button,input{
+  margin:5px;
+  padding:8px;
 }
-
-nav button{
-    background:#2563eb;
-    border:none;
-    color:white;
-    padding:8px 14px;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-nav button:hover{
-    background:#1d4ed8;
-}
-
-/* ===============================
-   MAIN LAYOUT
-=================================*/
-main{
-    flex:1;
-    display:flex;
-    overflow:hidden;
-}
-
-/* ===== Sidebar ===== */
-.sidebar{
-    width:220px;
-    background:white;
-    border-right:1px solid #ddd;
-    padding:15px;
-}
-
-.sidebar h3{
-    margin-bottom:10px;
-    font-size:15px;
-}
-
-.sidebar button{
-    width:100%;
-    margin-bottom:10px;
-    padding:10px;
-    border:none;
-    background:#e5e7eb;
-    border-radius:6px;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.sidebar button:hover{
-    background:#d1d5db;
-}
-
-/* ===== Canvas Area ===== */
-.canvas-area{
-    flex:1;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#e5e7eb;
-}
-
-/* DESIGN ZONE */
-#designCanvas{
-    background:white;
-    width:90%;
-    max-width:700px;
-    height:450px;
-    border-radius:10px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.1);
-    position:relative;
-    overflow:hidden;
-}
-
-/* TEXT ELEMENT */
-.text-element{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    font-size:28px;
-    font-weight:600;
-    cursor:move;
-}
-
-/* ===============================
-   FOOTER
-=================================*/
-footer{
-    background:#111827;
-    color:white;
-    text-align:center;
-    padding:10px;
-    font-size:13px;
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- ===============================
-     HEADER
-=================================-->
-<header>
-    <h1>🎨 Graphic Design App</h1>
+<h2>🎨 Mini Canva PRO</h2>
 
-    <nav>
-        <button onclick="addText()">Ajouter Texte</button>
-        <button onclick="changeColor()">Couleur</button>
-        <button onclick="downloadDesign()">Télécharger</button>
-    </nav>
-</header>
+<div class="toolbar">
+Couleur <input type="color" id="color" value="#000000">
+Taille <input type="range" id="size" min="1" max="30" value="5">
 
-<!-- ===============================
-     MAIN
-=================================-->
-<main>
+<button onclick="mode='draw'">✏️ Dessin</button>
+<button onclick="addText()">📝 Texte</button>
+<button onclick="mode='rect'">⬛ Rectangle</button>
+<button onclick="mode='circle'">⚪ Cercle</button>
 
-    <!-- LEFT MENU -->
-    <aside class="sidebar">
-        <h3>Outils</h3>
+<input type="file" id="imgLoader">
 
-        <button onclick="addText()">➕ Texte</button>
-        <button onclick="changeFont()">🔤 Police</button>
-        <button onclick="changeColor()">🎨 Couleur</button>
-    </aside>
+<button onclick="undo()">↩️ Annuler</button>
+<button onclick="clearCanvas()">🧹 Effacer</button>
+<button onclick="download()">⬇️ Télécharger</button>
+</div>
 
-    <!-- DESIGN AREA -->
-    <section class="canvas-area">
-        <div id="designCanvas"></div>
-    </section>
+<canvas id="canvas" width="700" height="450"></canvas>
 
-</main>
-
-<!-- ===============================
-     FOOTER
-=================================-->
-<footer>
-    © 2026 Graphic Design App — Mode Pro
-</footer>
-
-<!-- ===============================
-     JAVASCRIPT
-=================================-->
 <script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
-let currentText = null;
+let drawing=false;
+let mode="draw";
+let history=[];
 
-/* Ajouter texte */
+function saveState(){
+  history.push(canvas.toDataURL());
+}
+
+canvas.addEventListener("mousedown",(e)=>{
+  drawing=true;
+  saveState();
+  startX=e.offsetX;
+  startY=e.offsetY;
+});
+
+canvas.addEventListener("mouseup",(e)=>{
+  drawing=false;
+
+  if(mode==="rect"){
+    ctx.fillStyle=color.value;
+    ctx.fillRect(startX,startY,e.offsetX-startX,e.offsetY-startY);
+  }
+
+  if(mode==="circle"){
+    ctx.fillStyle=color.value;
+    let r=Math.hypot(e.offsetX-startX,e.offsetY-startY);
+    ctx.beginPath();
+    ctx.arc(startX,startY,r,0,Math.PI*2);
+    ctx.fill();
+  }
+});
+
+canvas.addEventListener("mousemove",(e)=>{
+  if(!drawing || mode!=="draw") return;
+
+  ctx.fillStyle=color.value;
+  ctx.beginPath();
+  ctx.arc(e.offsetX,e.offsetY,size.value,0,Math.PI*2);
+  ctx.fill();
+});
+
 function addText(){
-    const canvas = document.getElementById("designCanvas");
-
-    const text = document.createElement("div");
-    text.className = "text-element";
-    text.contentEditable = true;
-    text.innerText = "Votre texte";
-
-    makeDraggable(text);
-
-    canvas.appendChild(text);
-    currentText = text;
+  saveState();
+  let text=prompt("Entre ton texte");
+  if(!text) return;
+  ctx.fillStyle=color.value;
+  ctx.font="30px Arial";
+  ctx.fillText(text,50,60);
 }
 
-/* Changer couleur */
-function changeColor(){
-    if(!currentText) return;
-    currentText.style.color =
-        "#" + Math.floor(Math.random()*16777215).toString(16);
+function clearCanvas(){
+  saveState();
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 }
 
-/* Changer police */
-function changeFont(){
-    if(!currentText) return;
-
-    const fonts = ["Poppins","Arial","Courier New","Georgia"];
-    const randomFont = fonts[Math.floor(Math.random()*fonts.length)];
-
-    currentText.style.fontFamily = randomFont;
+function undo(){
+  if(history.length>0){
+    let img=new Image();
+    img.src=history.pop();
+    img.onload=()=>ctx.drawImage(img,0,0);
+  }
 }
 
-/* Télécharger design */
-function downloadDesign(){
-    alert("Fonction export bientôt disponible 🚀");
+function download(){
+  let link=document.createElement("a");
+  link.download="design.png";
+  link.href=canvas.toDataURL();
+  link.click();
 }
 
-/* Drag & Move */
-function makeDraggable(el){
-    let offsetX, offsetY;
+/* Ajouter image */
+document.getElementById("imgLoader").addEventListener("change",function(e){
+  saveState();
+  const file=e.target.files[0];
+  const reader=new FileReader();
 
-    el.onmousedown = function(e){
-        offsetX = e.offsetX;
-        offsetY = e.offsetY;
-
-        document.onmousemove = function(e){
-            el.style.left = (e.pageX - offsetX) + "px";
-            el.style.top = (e.pageY - offsetY) + "px";
-            el.style.transform = "none";
-        }
-
-        document.onmouseup = function(){
-            document.onmousemove = null;
-        }
+  reader.onload=function(event){
+    let img=new Image();
+    img.onload=function(){
+      ctx.drawImage(img,100,100,200,200);
     }
-}
-
+    img.src=event.target.result;
+  }
+  reader.readAsDataURL(file);
+});
 </script>
 
 </body>
