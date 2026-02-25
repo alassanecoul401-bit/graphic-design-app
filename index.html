@@ -1,101 +1,212 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Design 5G</title>
 
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
 <style>
+
 body{
 margin:0;
-font-family:Arial, sans-serif;
-display:flex;
-height:100vh;
+font-family:Poppins,Arial;
 background:#f2f2f2;
 }
 
-/* MENU GAUCHE MOBILE PRO */
-.sidebar{
+/* ===== ACCUEIL ===== */
+
+#home{
+padding:20px;
+}
+
+h1{
+text-align:center;
+font-size:26px;
+margin-top:30px;
+}
+
+.search{
+width:100%;
+padding:15px;
+border-radius:25px;
+border:none;
+margin:20px 0;
+font-size:16px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+}
+
+.card{
+background:white;
+border-radius:20px;
+padding:15px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+cursor:pointer;
+}
+
+.icon{
+width:60px;
+height:60px;
+border-radius:50%;
+margin:auto;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:25px;
+}
+
+.insta{background:#ff3b5c;}
+.poster{background:#ff8c00;}
+.video{background:#8a2be2;}
+.photo{background:#0099ff;}
+.doc{background:#00aa66;}
+.web{background:#4444ff;}
+
+/* ===== EDITOR ===== */
+
+#editor{
+display:none;
+height:100vh;
+}
+
+#tools{
 width:70px;
 background:#111;
 color:white;
 padding:10px;
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:12px;
+position:fixed;
+height:100%;
 }
 
-.sidebar h1{
-display:none;
-}
-
-.sidebar button{
-width:55px;
-height:55px;
-border:none;
+.tool{
+background:white;
+color:black;
+margin:10px 0;
+padding:10px;
 border-radius:10px;
-background:#ffffff;
+text-align:center;
 cursor:pointer;
-font-size:10px;
-}
-
-/* ZONE DESIGN */
-.canvas-area{
-flex:1;
-display:flex;
-justify-content:center;
-align-items:center;
+font-size:12px;
 }
 
 #canvas{
-background:white;
-box-shadow:0 0 10px rgba(0,0,0,0.2);
+margin-left:80px;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
+
+canvas{
+background:white;
+box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="sidebar">
-<button onclick="addText()">Texte</button>
-<button onclick="zoomIn()">Zoom +</button>
-<button onclick="zoomOut()">Zoom -</button>
-<button onclick="downloadPNG()">PNG</button>
+<!-- ===== ACCUEIL ===== -->
+
+<div id="home">
+
+<h1>Que voulez-vous créer ?</h1>
+
+<input class="search" placeholder="Rechercher un modèle">
+
+<div class="grid">
+
+<div class="card" onclick="openEditor()">
+<div class="icon insta">📱</div>
+Instagram
 </div>
 
-<div class="canvas-area">
-<canvas id="canvas" width="400" height="400"></canvas>
+<div class="card" onclick="openEditor()">
+<div class="icon poster">🖼️</div>
+Poster
+</div>
+
+<div class="card" onclick="openEditor()">
+<div class="icon video">🎬</div>
+Vidéo
+</div>
+
+<div class="card" onclick="openEditor()">
+<div class="icon photo">📷</div>
+Photo
+</div>
+
+<div class="card" onclick="openEditor()">
+<div class="icon doc">📄</div>
+Document
+</div>
+
+<div class="card" onclick="openEditor()">
+<div class="icon web">🌐</div>
+Site Web
+</div>
+
+</div>
+</div>
+
+<!-- ===== EDITEUR ===== -->
+
+<div id="editor">
+
+<div id="tools">
+<div class="tool" onclick="addText()">Texte</div>
+<div class="tool" onclick="zoomIn()">Zoom +</div>
+<div class="tool" onclick="zoomOut()">Zoom -</div>
+<div class="tool" onclick="downloadPNG()">PNG</div>
+</div>
+
+<div id="canvas">
+<canvas id="c" width="400" height="400"></canvas>
+</div>
+
 </div>
 
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
 
+let canvas=document.getElementById("c");
+let ctx=canvas.getContext("2d");
 let scale=1;
+
+function openEditor(){
+document.getElementById("home").style.display="none";
+document.getElementById("editor").style.display="block";
+}
 
 function addText(){
 ctx.font="30px Arial";
-ctx.fillStyle="black";
-ctx.fillText("Design 5G",50,200);
+ctx.fillText("Design 5G",100,200);
 }
 
 function zoomIn(){
 scale+=0.1;
-canvas.style.transform=`scale(${scale})`;
+canvas.style.transform="scale("+scale+")";
 }
 
 function zoomOut(){
 scale-=0.1;
-canvas.style.transform=`scale(${scale})`;
+canvas.style.transform="scale("+scale+")";
 }
 
 function downloadPNG(){
-const link=document.createElement("a");
+let link=document.createElement("a");
 link.download="design5g.png";
 link.href=canvas.toDataURL();
 link.click();
 }
+
 </script>
 
 </body>
