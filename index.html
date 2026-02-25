@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Canva Dev</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Design 5G</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
 
@@ -13,11 +14,24 @@ font-family:Arial;
 background:#f0f2f5;
 }
 
+/* HEADER APP */
+.header{
+background:linear-gradient(90deg,#00c6ff,#7b2cff);
+color:white;
+padding:15px;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+letter-spacing:1px;
+}
+
 .toolbar{
 background:white;
 padding:10px;
 display:flex;
-gap:10px;
+flex-wrap:wrap;
+gap:8px;
+justify-content:center;
 box-shadow:0 2px 8px rgba(0,0,0,.2);
 }
 
@@ -26,33 +40,39 @@ border:1px solid #ccc;
 display:block;
 margin:20px auto;
 background:white;
+border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">
+🚀 DESIGN 5G
+</div>
+
 <div class="toolbar">
 <button onclick="addText()">📝 Texte</button>
 <input type="file" id="imgUpload">
-<input type="color" id="color">
+<input type="color" id="color" value="#000000">
+<button onclick="deleteObj()">🗑 Supprimer</button>
 <button onclick="save()">💾 Sauver</button>
 <button onclick="load()">📂 Charger</button>
-<button onclick="deleteObj()">🗑 Supprimer</button>
 </div>
 
-<canvas id="c" width="400" height="500"></canvas>
+<canvas id="c" width="380" height="500"></canvas>
 
 <script>
 const canvas = new fabric.Canvas('c');
 
 /* Ajouter texte */
 function addText(){
-let text = new fabric.IText('Double clique pour modifier',{
-left:100,
-top:100,
+let text = new fabric.IText('Design 5G',{
+left:120,
+top:120,
 fill:document.getElementById("color").value,
-fontSize:24
+fontSize:28,
+fontWeight:"bold"
 });
 canvas.add(text);
 }
@@ -69,22 +89,23 @@ canvas.add(img);
 reader.readAsDataURL(e.target.files[0]);
 };
 
-/* Supprimer */
+/* Supprimer objet */
 function deleteObj(){
-canvas.remove(canvas.getActiveObject());
+const obj = canvas.getActiveObject();
+if(obj) canvas.remove(obj);
 }
 
-/* Sauvegarde */
+/* Sauvegarder */
 function save(){
-localStorage.setItem("design",
+localStorage.setItem("design5g",
 JSON.stringify(canvas.toJSON()));
-alert("Design sauvegardé !");
+alert("Projet Design 5G sauvegardé !");
 }
 
 /* Charger */
 function load(){
 canvas.loadFromJSON(
-localStorage.getItem("design"),
+localStorage.getItem("design5g"),
 canvas.renderAll.bind(canvas)
 );
 }
