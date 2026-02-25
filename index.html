@@ -1,231 +1,140 @@
-import React, { useRef, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Pressable,
-  TextInput,
+  FlatList,
+  Image,
+  TouchableOpacity
 } from "react-native";
-import Canvas from "react-native-canvas";
-import * as ImagePicker from "expo-image-picker";
 
-export default function App() {
+const DATA = [
+  { id:"1", title:"Story Instagram", icon:require("../assets/icons/story.png")},
+  { id:"2", title:"Publication Instagram", icon:require("../assets/icons/post.png")},
+  { id:"3", title:"Reel Instagram", icon:require("../assets/icons/reel.png")},
+  { id:"4", title:"Publication Facebook", icon:require("../assets/icons/facebook.png")},
+  { id:"5", title:"Miniature YouTube", icon:require("../assets/icons/youtube.png")},
+  { id:"6", title:"Logo", icon:require("../assets/icons/logo.png")},
+  { id:"7", title:"Flyer", icon:require("../assets/icons/flyer.png")},
+  { id:"8", title:"Carte visite", icon:require("../assets/icons/card.png")},
+  { id:"9", title:"Sticker", icon:require("../assets/icons/sticker.png")}
+];
 
-  const [screen, setScreen] = useState("home");
-  const [elements, setElements] = useState([]);
-  const [selected, setSelected] = useState(null);
+export default function CreateScreen({navigation}) {
 
-  const canvasRef = useRef(null);
-
-  /* ===== DRAW ===== */
-  const draw = (canvas) => {
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    elements.forEach(el => {
-      if (el.type === "text") {
-        ctx.fillStyle = el.color;
-        ctx.font = `${el.size}px Arial`;
-        ctx.fillText(el.text, el.x, el.y);
-      }
-
-      if (el.type === "image" && el.img) {
-        ctx.drawImage(el.img, el.x, el.y, el.w, el.h);
-      }
-    });
-  };
-
-  /* ===== ADD TEXT ===== */
-  const addText = () => {
-    setElements([
-      ...elements,
-      {
-        type: "text",
-        text: "Design 5G",
-        x: 120,
-        y: 200,
-        size: 40,
-        color: "#000"
-      }
-    ]);
-  };
-
-  /* ===== ADD IMAGE ===== */
-  const addImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images
-    });
-
-    if (!result.canceled) {
-      const img = new Image();
-      img.src = result.assets[0].uri;
-
-      setElements([
-        ...elements,
-        {
-          type: "image",
-          img,
-          x: 100,
-          y: 100,
-          w: 150,
-          h: 150
-        }
-      ]);
-    }
-  };
-
-  /* ===== COLOR ===== */
-  const changeColor = (color) => {
-    if (!selected) return;
-    selected.color = color;
-    setElements([...elements]);
-  };
-
-  /* ===== SIZE ===== */
-  const changeSize = (size) => {
-    if (!selected) return;
-    selected.size = size;
-    setElements([...elements]);
-  };
-
-  /* ===== HOME ===== */
-  if (screen === "home") {
-    return (
-      <View style={styles.home}>
-        <Text style={styles.title}>🔥 Design 5G</Text>
-
-        <View style={styles.grid}>
-          <Pressable style={styles.card}
-            onPress={() => setScreen("editor")}>
-            <Text>Instagram Post</Text>
-          </Pressable>
-
-          <Pressable style={styles.card}
-            onPress={() => setScreen("editor")}>
-            <Text>Poster</Text>
-          </Pressable>
-        </View>
+  const renderItem = ({item}) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={()=>navigation.navigate("Editor")}
+    >
+      <View style={styles.circle}>
+        <Image source={item.icon} style={styles.icon}/>
       </View>
-    );
-  }
 
-  /* ===== EDITOR ===== */
+      <Text style={styles.label}>{item.title}</Text>
+    </TouchableOpacity>
+  );
+
   return (
-    <View style={styles.editor}>
+    <View style={styles.container}>
 
-      {/* TOOLS */}
-      <View style={styles.tools}>
-        <Pressable style={styles.tool} onPress={addText}>
-          <Text>Texte</Text>
-        </Pressable>
-
-        <Pressable style={styles.tool} onPress={addImage}>
-          <Text>Image</Text>
-        </Pressable>
+      {/* HEADER */}
+      <View style={styles.header}>
+        <View style={styles.avatar}>
+          <Text style={{color:"#fff"}}>A</Text>
+        </View>
+        <Text style={styles.title}>Créer</Text>
       </View>
 
-      {/* CANVAS */}
-      <View style={styles.canvasArea}>
-        <Canvas
-          ref={canvas => {
-            canvasRef.current = canvas;
-            draw(canvas);
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-      </View>
-
-      {/* CONTROLS */}
-      <View style={styles.controls}>
-        <TextInput
-          placeholder="#000000"
-          style={styles.input}
-          onSubmitEditing={(e)=>changeColor(e.nativeEvent.text)}
-        />
-
-        <TextInput
-          placeholder="Taille"
-          style={styles.input}
-          keyboardType="numeric"
-          onSubmitEditing={(e)=>changeSize(Number(e.nativeEvent.text))}
-        />
-      </View>
+      {/* GRID */}
+      <FlatList
+        data={DATA}
+        renderItem={renderItem}
+        keyExtractor={item=>item.id}
+        numColumns={3}
+        contentContainerStyle={{paddingBottom:120}}
+      />
 
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  home:{
+
+  container:{
     flex:1,
-    padding:20,
+    backgroundColor:"#f5f5f7",
+    paddingTop:50
+  },
+
+  header:{
+    flexDirection:"row",
     alignItems:"center",
+    paddingHorizontal:20,
+    marginBottom:10
+  },
+
+  avatar:{
+    width:40,
+    height:40,
+    borderRadius:20,
+    backgroundColor:"#ff4d7e",
     justifyContent:"center",
-    backgroundColor:"#f3f4f6"
+    alignItems:"center",
+    marginRight:10
   },
 
   title:{
-    fontSize:28,
+    fontSize:22,
     fontWeight:"bold"
   },
 
-  grid:{
-    flexDirection:"row",
-    marginTop:20,
-    gap:15
-  },
-
   card:{
-    backgroundColor:"#fff",
-    padding:20,
-    borderRadius:15,
-    elevation:4
-  },
-
-  editor:{ flex:1 },
-
-  tools:{
-    position:"absolute",
-    left:0,
-    top:0,
-    bottom:0,
-    width:80,
-    backgroundColor:"#111",
-    padding:10
-  },
-
-  tool:{
-    backgroundColor:"#fff",
-    padding:10,
-    borderRadius:12,
-    marginVertical:10,
-    alignItems:"center"
-  },
-
-  canvasArea:{
     flex:1,
-    marginLeft:90,
+    alignItems:"center",
+    marginVertical:15
+  },
+
+  circle:{
+    width:90,
+    height:90,
+    borderRadius:45,
+    backgroundColor:"#eadcff",
     justifyContent:"center",
-    alignItems:"center"
+    alignItems:"center",
+    elevation:3
   },
 
-  controls:{
-    position:"absolute",
-    bottom:0,
-    left:90,
-    right:0,
-    backgroundColor:"#fff",
-    flexDirection:"row",
-    padding:10,
-    gap:10
+  icon:{
+    width:50,
+    height:50,
+    resizeMode:"contain"
   },
 
-  input:{
-    borderWidth:1,
-    padding:8,
-    width:100,
-    borderRadius:8
+  label:{
+    marginTop:8,
+    textAlign:"center",
+    fontSize:13,
+    color:"#444"
   }
 });
+npm install @react-navigation/native
+npm install @react-navigation/bottom-tabs
+npm install react-native-screens react-native-safe-area-context
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import CreateScreen from "./CreateScreen";
+import EditorScreen from "./EditorScreen";
+
+const Tab = createBottomTabNavigator();
+
+export default function MainTabs(){
+  return(
+    <Tab.Navigator screenOptions={{headerShown:false}}>
+      <Tab.Screen name="Créer" component={CreateScreen}/>
+      <Tab.Screen name="Designs" component={EditorScreen}/>
+      <Tab.Screen name="Modèles" component={CreateScreen}/>
+      <Tab.Screen name="Plus" component={CreateScreen}/>
+    </Tab.Navigator>
+  );
+}
