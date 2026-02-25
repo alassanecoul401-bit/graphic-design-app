@@ -1,201 +1,61 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Design 5G</title>
-
-<style>
-body{
-margin:0;
-background:#0f0f0f;
-font-family:Arial;
-color:white;
-}
-
-header{
-background:#000;
-padding:14px;
-text-align:center;
-font-size:20px;
-font-weight:bold;
-}
-
-.toolbar{
-display:flex;
-gap:8px;
-overflow-x:auto;
-padding:10px;
-background:#1a1a1a;
-}
-
-button,input{
-padding:10px;
-border:none;
-border-radius:8px;
-background:#00b7ff;
-color:white;
-font-weight:bold;
-}
-
-#editor{
-display:flex;
-justify-content:center;
-margin-top:15px;
-}
-
-canvas{
-background:white;
-border-radius:15px;
-touch-action:none;
-box-shadow:0 0 20px rgba(0,0,0,.5);
-}
-</style>
-</head>
-
-<body>
-
-<header>🎨 Design 5G — Création Graphique</header>
-
-<div class="toolbar">
-<button onclick="addText()">Ajouter Texte</button>
-<input type="file" id="imageInput" accept="image/*">
-<button onclick="addSticker()">Sticker ⭐</button>
-<button onclick="randomColor()">Couleur</button>
-<button onclick="saveDesign()">Sauvegarder</button>
-<button onclick="exportPNG()">Export PNG</button>
-</div>
-
-<div id="editor">
-<canvas id="canvas" width="360" height="520"></canvas>
-</div>
+APP DESIGN 5G
+│
+├── 1. Moteur Canvas (éditeur)
+├── 2. Système d’objets
+├── 3. Sauvegarde projet
+└── 4. Export image
+<canvas id="editor"></canvas>
 
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
+const canvas = document.getElementById("editor");
+const ctx = canvas.getContext("2d");
 
-let objects=[];
-let selected=null;
-let dragging=false;
+let objects = [];
 
-/* ===== DESSIN ===== */
-function render(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
 
-objects.forEach(o=>{
-if(o.type==="text"){
-ctx.fillStyle=o.color;
-ctx.font=o.size+"px Arial";
-ctx.fillText(o.text,o.x,o.y);
+  objects.forEach(obj=>{
+    ctx.save();
+    ctx.translate(obj.x, obj.y);
+    ctx.rotate(obj.rotation);
+    ctx.drawImage(obj.img,0,0,obj.w,obj.h);
+    ctx.restore();
+  });
 }
-if(o.type==="image"){
-ctx.drawImage(o.img,o.x,o.y,o.w,o.h);
-}
-});
-}
-
-/* ===== TEXTE ===== */
-function addText(){
-const text=prompt("Votre texte:");
-if(!text) return;
-
-objects.push({
-type:"text",
-text:text,
-x:120,
-y:120,
-size:28,
-color:"#000"
-});
-render();
-}
-
-/* ===== IMAGE ===== */
-document.getElementById("imageInput").addEventListener("change",e=>{
-const file=e.target.files[0];
-if(!file) return;
-
-const img=new Image();
-img.onload=function(){
-objects.push({
-type:"image",
-img:img,
-x:80,
-y:80,
-w:150,
-h:150
-});
-render();
-};
-img.src=URL.createObjectURL(file);
-});
-
-/* ===== STICKER ===== */
-function addSticker(){
-const img=new Image();
-img.onload=function(){
-objects.push({
-type:"image",
-img:img,
-x:100,
-y:150,
-w:80,
-h:80
-});
-render();
-};
-img.src="https://cdn-icons-png.flaticon.com/512/616/616408.png";
-}
-
-/* ===== COULEUR ===== */
-function randomColor(){
-if(!objects.length) return;
-let last=objects[objects.length-1];
-if(last.type==="text"){
-last.color="#"+Math.floor(Math.random()*16777215).toString(16);
-render();
-}
-}
-
-/* ===== DRAG MOBILE ===== */
-canvas.addEventListener("touchstart",()=>{
-selected=objects[objects.length-1];
-dragging=true;
-});
-
-canvas.addEventListener("touchmove",e=>{
-if(!dragging||!selected)return;
-
-const rect=canvas.getBoundingClientRect();
-selected.x=e.touches[0].clientX-rect.left;
-selected.y=e.touches[0].clientY-rect.top;
-
-render();
-});
-
-canvas.addEventListener("touchend",()=>dragging=false);
-
-/* ===== SAUVEGARDE ===== */
-function saveDesign(){
-localStorage.setItem("design5g_project",
-JSON.stringify(objects.map(o=>{
-if(o.type==="text") return o;
-return {type:"image",x:o.x,y:o.y,w:o.w,h:o.h};
-}))
-);
-alert("Design sauvegardé ✅");
-}
-
-/* ===== EXPORT ===== */
-function exportPNG(){
-const link=document.createElement("a");
-link.download="design5g.png";
-link.href=canvas.toDataURL("image/png");
-link.click();
-}
-
-render();
 </script>
-
-</body>
-</html>
+let textObject = {
+  type:"text",
+  text:"Design 5G",
+  x:120,
+  y:200,
+  size:40,
+  color:"#000",
+  rotation:0
+};
+Touch start → sélectionner objet
+Touch move → changer position
+Pinch → zoom
+Rotate → angle
+canvas.addEventListener("touchmove",(e)=>{
+ selected.x = e.touches[0].clientX;
+ selected.y = e.touches[0].clientY;
+ draw();
+});
+localStorage.setItem(
+ "project",
+ JSON.stringify(objects)
+);
+objects = JSON.parse(localStorage.getItem("project"));
+draw();
+let link = document.createElement("a");
+link.download = "design5g.png";
+link.href = canvas.toDataURL("image/png");
+link.click();
+Design5G/
+ ├── Editor Screen
+ ├── Toolbar
+ ├── Text Manager
+ ├── Sticker Library
+ ├── Save System
+ └── Export Engine
