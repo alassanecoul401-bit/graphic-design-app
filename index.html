@@ -5,8 +5,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  StyleSheet,
-  Pressable
+  StyleSheet
 } from "react-native";
 
 import { NavigationContainer } from "@react-navigation/native";
@@ -14,100 +13,95 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const Stack = createNativeStackNavigator();
 
-/* ===== DONNÉES IMMOBILIER ===== */
+/* ================= DATA ================= */
 
-const DATA = [
+const houses = [
   {
     id: "1",
     title: "Villa moderne",
     price: "85 000 000 FCFA",
     location: "Abidjan, Cocody",
-    image: require("./assets/house1.jpg")
+    image: "https://picsum.photos/400/300"
   },
   {
     id: "2",
     title: "Appartement luxe",
     price: "45 000 000 FCFA",
     location: "Abidjan, Marcory",
-    image: require("./assets/house2.jpg")
+    image: "https://picsum.photos/401/300"
   },
   {
     id: "3",
     title: "Maison familiale",
     price: "30 000 000 FCFA",
-    location: "Yopougon",
-    image: require("./assets/house3.jpg")
+    location: "Abidjan, Yopougon",
+    image: "https://picsum.photos/402/300"
   }
 ];
 
-/* ===== ÉCRAN ACCUEIL ===== */
+/* ================= HOME ================= */
 
 function HomeScreen({ navigation }) {
-
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate("Détail", { item })}
-    >
-      <Image source={item.image} style={styles.image} />
-
-      <View style={{ padding: 12 }}>
-        <Text style={styles.price}>{item.price}</Text>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.location}>{item.location}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <FlatList
-      data={DATA}
-      renderItem={renderItem}
+      data={houses}
       keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate("Detail", { item })}
+        >
+          <Image source={{ uri: item.image }} style={styles.image} />
+
+          <View style={styles.info}>
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.location}>{item.location}</Text>
+            <Text style={styles.price}>{item.price}</Text>
+          </View>
+        </TouchableOpacity>
+      )}
     />
   );
 }
 
-/* ===== ÉCRAN DÉTAIL ===== */
+/* ================= DETAIL ================= */
 
 function DetailScreen({ route }) {
-
   const { item } = route.params;
 
   return (
     <View style={styles.container}>
-      <Image source={item.image} style={styles.detailImage} />
+      <Image source={{ uri: item.image }} style={styles.detailImage} />
 
-      <Text style={styles.detailPrice}>{item.price}</Text>
       <Text style={styles.detailTitle}>{item.title}</Text>
       <Text style={styles.detailLocation}>{item.location}</Text>
+      <Text style={styles.detailPrice}>{item.price}</Text>
 
-      <Pressable style={styles.button}>
+      <TouchableOpacity style={styles.button}>
         <Text style={{ color: "#fff", fontWeight: "bold" }}>
-          Contacter l'agent
+          Contacter l'agence
         </Text>
-      </Pressable>
+      </TouchableOpacity>
     </View>
   );
 }
 
-/* ===== APP ===== */
+/* ================= APP ================= */
 
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Immobilier" component={HomeScreen} />
-        <Stack.Screen name="Détail" component={DetailScreen} />
+        <Stack.Screen name="Accueil" component={HomeScreen} />
+        <Stack.Screen name="Detail" component={DetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-/* ===== STYLES ===== */
+/* ================= STYLES ================= */
 
 const styles = StyleSheet.create({
-
   card: {
     backgroundColor: "#fff",
     margin: 12,
@@ -115,61 +109,55 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     elevation: 4
   },
-
   image: {
     width: "100%",
     height: 180
   },
-
-  price: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#27ae60"
+  info: {
+    padding: 12
   },
-
   title: {
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "bold"
+  },
+  location: {
+    color: "gray",
     marginTop: 4
   },
-
-  location: {
-    color: "#777",
-    marginTop: 2
+  price: {
+    color: "#27ae60",
+    marginTop: 6,
+    fontWeight: "bold"
   },
-
   container: {
     flex: 1,
     padding: 15,
     backgroundColor: "#fff"
   },
-
   detailImage: {
     width: "100%",
-    height: 260,
-    borderRadius: 15
+    height: 250,
+    borderRadius: 12
   },
-
-  detailPrice: {
-    fontSize: 24,
+  detailTitle: {
+    fontSize: 22,
     fontWeight: "bold",
-    color: "#27ae60",
     marginTop: 15
   },
-
-  detailTitle: {
-    fontSize: 20,
-    marginTop: 5
-  },
-
   detailLocation: {
-    color: "#777",
-    marginBottom: 25
+    color: "gray",
+    marginTop: 6
   },
-
+  detailPrice: {
+    fontSize: 20,
+    color: "#27ae60",
+    marginTop: 10
+  },
   button: {
     backgroundColor: "#111",
     padding: 16,
     borderRadius: 12,
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: 25
   }
 });
