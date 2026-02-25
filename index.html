@@ -2,16 +2,16 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Design 5G</title>
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design 5G</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Poppins,Arial;
+font-family:Arial;
 background:#f2f2f2;
+overflow:hidden;
 }
 
 /* ===== ACCUEIL ===== */
@@ -22,52 +22,23 @@ padding:20px;
 
 h1{
 text-align:center;
-font-size:26px;
-margin-top:30px;
-}
-
-.search{
-width:100%;
-padding:15px;
-border-radius:25px;
-border:none;
-margin:20px 0;
-font-size:16px;
 }
 
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:20px;
+gap:15px;
+margin-top:20px;
 }
 
 .card{
 background:white;
-border-radius:20px;
+border-radius:15px;
 padding:15px;
 text-align:center;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
 cursor:pointer;
 }
-
-.icon{
-width:60px;
-height:60px;
-border-radius:50%;
-margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-color:white;
-font-size:25px;
-}
-
-.insta{background:#ff3b5c;}
-.poster{background:#ff8c00;}
-.video{background:#8a2be2;}
-.photo{background:#0099ff;}
-.doc{background:#00aa66;}
-.web{background:#4444ff;}
 
 /* ===== EDITOR ===== */
 
@@ -77,36 +48,37 @@ height:100vh;
 }
 
 #tools{
-width:70px;
-background:#111;
-color:white;
-padding:10px;
 position:fixed;
+left:0;
+top:0;
+width:70px;
 height:100%;
+background:#111;
+padding:10px;
 }
 
 .tool{
 background:white;
-color:black;
 margin:10px 0;
 padding:10px;
 border-radius:10px;
 text-align:center;
-cursor:pointer;
 font-size:12px;
+cursor:pointer;
 }
 
-#canvas{
+#canvasArea{
 margin-left:80px;
+height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
 }
 
 canvas{
 background:white;
-box-shadow:0 0 15px rgba(0,0,0,0.2);
+box-shadow:0 0 20px rgba(0,0,0,0.2);
+touch-action:none;
 }
 
 </style>
@@ -114,91 +86,139 @@ box-shadow:0 0 15px rgba(0,0,0,0.2);
 
 <body>
 
-<!-- ===== ACCUEIL ===== -->
+<!-- ===== HOME ===== -->
 
 <div id="home">
-
-<h1>Que voulez-vous créer ?</h1>
-
-<input class="search" placeholder="Rechercher un modèle">
+<h1>Design 5G</h1>
 
 <div class="grid">
-
-<div class="card" onclick="openEditor()">
-<div class="icon insta">📱</div>
-Instagram
-</div>
-
-<div class="card" onclick="openEditor()">
-<div class="icon poster">🖼️</div>
-Poster
-</div>
-
-<div class="card" onclick="openEditor()">
-<div class="icon video">🎬</div>
-Vidéo
-</div>
-
-<div class="card" onclick="openEditor()">
-<div class="icon photo">📷</div>
-Photo
-</div>
-
-<div class="card" onclick="openEditor()">
-<div class="icon doc">📄</div>
-Document
-</div>
-
-<div class="card" onclick="openEditor()">
-<div class="icon web">🌐</div>
-Site Web
-</div>
-
+<div class="card" onclick="openEditor()">Instagram</div>
+<div class="card" onclick="openEditor()">Poster</div>
+<div class="card" onclick="openEditor()">Story</div>
 </div>
 </div>
 
-<!-- ===== EDITEUR ===== -->
+<!-- ===== EDITOR ===== -->
 
 <div id="editor">
 
 <div id="tools">
 <div class="tool" onclick="addText()">Texte</div>
-<div class="tool" onclick="zoomIn()">Zoom +</div>
-<div class="tool" onclick="zoomOut()">Zoom -</div>
+<div class="tool" onclick="addImage()">Image</div>
 <div class="tool" onclick="downloadPNG()">PNG</div>
 </div>
 
-<div id="canvas">
-<canvas id="c" width="400" height="400"></canvas>
+<div id="canvasArea">
+<canvas id="canvas" width="400" height="400"></canvas>
 </div>
+
+<input type="file" id="imgLoader" accept="image/*" hidden>
 
 </div>
 
 <script>
 
-let canvas=document.getElementById("c");
-let ctx=canvas.getContext("2d");
-let scale=1;
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+let elements=[];
+let selected=null;
+let offsetX,offsetY;
+
+/* ===== NAVIGATION ===== */
 
 function openEditor(){
 document.getElementById("home").style.display="none";
 document.getElementById("editor").style.display="block";
+draw();
 }
+
+/* ===== ADD TEXT ===== */
 
 function addText(){
+elements.push({
+type:"text",
+text:"Design 5G",
+x:150,
+y:200
+});
+draw();
+}
+
+/* ===== ADD IMAGE ===== */
+
+function addImage(){
+document.getElementById("imgLoader").click();
+}
+
+document.getElementById("imgLoader").onchange=e=>{
+let file=e.target.files[0];
+let img=new Image();
+img.onload=()=>{
+elements.push({
+type:"image",
+img:img,
+x:100,
+y:100,
+w:150,
+h:150
+});
+draw();
+};
+img.src=URL.createObjectURL(file);
+};
+
+/* ===== DRAW ===== */
+
+function draw(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+elements.forEach(el=>{
+if(el.type==="text"){
 ctx.font="30px Arial";
-ctx.fillText("Design 5G",100,200);
+ctx.fillText(el.text,el.x,el.y);
+}
+if(el.type==="image"){
+ctx.drawImage(el.img,el.x,el.y,el.w,el.h);
+}
+});
 }
 
-function zoomIn(){
-scale+=0.1;
-canvas.style.transform="scale("+scale+")";
-}
+/* ===== DRAG MOBILE ===== */
 
-function zoomOut(){
-scale-=0.1;
-canvas.style.transform="scale("+scale+")";
+canvas.addEventListener("pointerdown",e=>{
+const rect=canvas.getBoundingClientRect();
+let x=e.clientX-rect.left;
+let y=e.clientY-rect.top;
+
+selected=elements.find(el=>{
+if(el.type==="text"){
+return x>el.x && x<el.x+150 && y>el.y-30 && y<el.y;
 }
+if(el.type==="image"){
+return x>el.x && x<el.x+el.w && y>el.y && y<el.y+el.h;
+}
+});
+
+if(selected){
+offsetX=x-selected.x;
+offsetY=y-selected.y;
+}
+});
+
+canvas.addEventListener("pointermove",e=>{
+if(!selected) return;
+
+const rect=canvas.getBoundingClientRect();
+selected.x=e.clientX-rect.left-offsetX;
+selected.y=e.clientY-rect.top-offsetY;
+
+draw();
+});
+
+canvas.addEventListener("pointerup",()=>selected=null);
+
+/* ===== EXPORT ===== */
 
 function downloadPNG(){
 let link=document.createElement("a");
