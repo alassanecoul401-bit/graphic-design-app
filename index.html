@@ -1,3 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>MK Design Studio</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins&family=Roboto&family=Montserrat&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+font-family:Poppins;
+display:flex;
+height:100vh;
+}
+
+/* ===== MENU ===== */
+#tools{
+width:230px;
+background:#111;
+color:white;
+padding:15px;
+overflow:auto;
+}
+
+button,select,input{
+width:100%;
+margin:6px 0;
+padding:8px;
+border:none;
+border-radius:6px;
+}
+
+/* ===== CANVAS ===== */
+#canvasContainer{
+flex:1;
+background:#eee;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+#canvas{
+width:900px;
+height:600px;
+background:white;
+position:relative;
+transform-origin:center;
+}
+
+/* ===== ELEMENT ===== */
+.element{
+position:absolute;
+cursor:move;
+padding:5px;
+border:1px dashed transparent;
+}
+
+.element.selected{
+border:1px dashed blue;
+}
+
+.resize{
+width:10px;
+height:10px;
+background:blue;
+position:absolute;
+right:-5px;
+bottom:-5px;
+cursor:se-resize;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== MENU GAUCHE ===== -->
+<div id="tools">
+
+<h2>🎨 MK Design Studio</h2>
+
+<button onclick="addText()">Ajouter texte</button>
+
+<select id="fontSelect" onchange="changeFont()">
+<option>Poppins</option>
+<option>Roboto</option>
+<option>Montserrat</option>
+</select>
+
+<input type="color" onchange="changeColor(this.value)">
+
+<button onclick="deleteElement()">🗑 Supprimer</button>
+
+<hr>
+
+<button onclick="templatePoster()">📄 Modèle Poster</button>
+<button onclick="templateInstagram()">📱 Modèle Instagram</button>
+
+<hr>
+
+<button onclick="zoomIn()">Zoom +</button>
+<button onclick="zoomOut()">Zoom -</button>
+
+<button onclick="downloadImage()">⬇ Télécharger PNG</button>
+
+<input type="file" accept="image/*" onchange="addImage(event)">
+
+</div>
+
+<!-- ===== ZONE DESIGN ===== -->
+<div id="canvasContainer">
+<div id="canvas"></div>
+</div>
+
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
@@ -5,9 +119,7 @@ let selected=null;
 let zoom=1;
 const canvas=document.getElementById("canvas");
 
-// ======================
-// SAUVEGARDE AUTOMATIQUE
-// ======================
+/* ===== SAUVEGARDE ===== */
 function saveDesign(){
 localStorage.setItem("design",canvas.innerHTML);
 }
@@ -19,35 +131,14 @@ canvas.innerHTML=data;
 restoreEvents();
 }
 }
-
 window.onload=loadDesign;
 
-// ======================
-// MODELES (TEMPLATES)
-// ======================
-function templatePoster(){
-canvas.innerHTML="";
-addTextCustom("MON ÉVÉNEMENT",300,80,"40px","#111");
-addTextCustom("Bienvenue à tous",320,200,"22px","#555");
-saveDesign();
-}
-
-function templateInstagram(){
-canvas.innerHTML="";
-canvas.style.width="600px";
-canvas.style.height="600px";
-addTextCustom("Promo -50%",180,250,"45px","red");
-saveDesign();
-}
-
-// ======================
-// TEXTE
-// ======================
+/* ===== TEXT ===== */
 function addText(){
-addTextCustom("Double clique pour modifier",50,50,"20px","#000");
+createText("Double clique pour modifier",50,50,"20px","#000");
 }
 
-function addTextCustom(text,x,y,size,color){
+function createText(text,x,y,size,color){
 let el=document.createElement("div");
 el.className="element";
 el.innerText=text;
@@ -63,9 +154,7 @@ canvas.appendChild(el);
 saveDesign();
 }
 
-// ======================
-// IMAGE
-// ======================
+/* ===== IMAGE ===== */
 function addImage(e){
 let file=e.target.files[0];
 let img=document.createElement("img");
@@ -81,9 +170,23 @@ canvas.appendChild(img);
 saveDesign();
 }
 
-// ======================
-// EVENTS
-// ======================
+/* ===== TEMPLATES ===== */
+function templatePoster(){
+canvas.innerHTML="";
+createText("MON ÉVÉNEMENT",280,80,"40px","#111");
+createText("Bienvenue à tous",320,200,"24px","#555");
+saveDesign();
+}
+
+function templateInstagram(){
+canvas.innerHTML="";
+canvas.style.width="600px";
+canvas.style.height="600px";
+createText("PROMO -50%",180,250,"45px","red");
+saveDesign();
+}
+
+/* ===== EVENTS ===== */
 function addEvents(el){
 el.onclick=(ev)=>{
 ev.stopPropagation();
@@ -109,9 +212,7 @@ saveDesign();
 };
 }
 
-// ======================
-// RESIZE
-// ======================
+/* ===== RESIZE ===== */
 function addResize(el){
 let box=document.createElement("div");
 box.className="resize";
@@ -133,7 +234,6 @@ saveDesign();
 };
 }
 
-// ======================
 function restoreEvents(){
 document.querySelectorAll(".element").forEach(el=>{
 addResize(el);
@@ -141,7 +241,7 @@ addEvents(el);
 });
 }
 
-// ======================
+/* ===== SELECT ===== */
 function select(el){
 document.querySelectorAll(".element").forEach(e=>e.classList.remove("selected"));
 selected=el;
@@ -156,7 +256,7 @@ saveDesign();
 }
 }
 
-// ======================
+/* ===== STYLE ===== */
 function changeFont(){
 if(selected){
 selected.style.fontFamily=document.getElementById("fontSelect").value;
@@ -171,7 +271,7 @@ saveDesign();
 }
 }
 
-// ======================
+/* ===== ZOOM ===== */
 function zoomIn(){
 zoom+=0.1;
 canvas.style.transform="scale("+zoom+")";
@@ -182,7 +282,7 @@ zoom-=0.1;
 canvas.style.transform="scale("+zoom+")";
 }
 
-// ======================
+/* ===== DOWNLOAD ===== */
 function downloadImage(){
 html2canvas(canvas).then(c=>{
 let link=document.createElement("a");
@@ -197,3 +297,6 @@ document.querySelectorAll(".element").forEach(e=>e.classList.remove("selected"))
 selected=null;
 }
 </script>
+
+</body>
+</html>
