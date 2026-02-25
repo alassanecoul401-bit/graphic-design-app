@@ -2,146 +2,152 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini Canva PRO</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Mini Canva App</title>
 
 <style>
 body{
-  font-family: Arial;
-  background:#f4f6f8;
-  text-align:center;
+margin:0;
+font-family:Arial;
+background:#f3f4f7;
 }
 
-.toolbar{
-  background:white;
-  padding:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-  margin-bottom:10px;
+/* HEADER */
+.header{
+padding:25px;
+text-align:center;
+background:linear-gradient(90deg,#4facfe,#a64bf4);
+color:white;
+}
+
+.search{
+margin:15px;
+background:white;
+padding:12px;
+border-radius:25px;
+box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+padding:15px;
+}
+
+.card{
+background:white;
+border-radius:15px;
+padding:20px;
+text-align:center;
+box-shadow:0 2px 6px rgba(0,0,0,.15);
+cursor:pointer;
+}
+
+/* EDITOR */
+#editor{
+display:none;
+height:100vh;
+flex-direction:column;
 }
 
 canvas{
-  background:white;
-  border:2px solid #333;
-  cursor:crosshair;
+background:white;
+margin:auto;
+border:2px solid #ccc;
 }
 
-button,input{
-  margin:5px;
-  padding:8px;
+/* BOTTOM MENU */
+.bottom{
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+box-shadow:0 -2px 8px rgba(0,0,0,.2);
+}
+
+.btn{
+cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🎨 Mini Canva PRO</h2>
-
-<div class="toolbar">
-Couleur <input type="color" id="color" value="#000000">
-Taille <input type="range" id="size" min="1" max="30" value="5">
-
-<button onclick="mode='draw'">✏️ Dessin</button>
-<button onclick="addText()">📝 Texte</button>
-<button onclick="mode='rect'">⬛ Rectangle</button>
-<button onclick="mode='circle'">⚪ Cercle</button>
-
-<input type="file" id="imgLoader">
-
-<button onclick="undo()">↩️ Annuler</button>
-<button onclick="clearCanvas()">🧹 Effacer</button>
-<button onclick="download()">⬇️ Télécharger</button>
+<!-- HOME -->
+<div id="home">
+<div class="header">
+<h2>Qu’allez-vous créer aujourd’hui ?</h2>
 </div>
 
-<canvas id="canvas" width="700" height="450"></canvas>
+<div class="search">🔎 Rechercher des modèles</div>
+
+<div class="grid">
+<div class="card" onclick="openEditor()">Design</div>
+<div class="card" onclick="openEditor()">Réseaux</div>
+<div class="card" onclick="openEditor()">Vidéo</div>
+<div class="card" onclick="openEditor()">Photo</div>
+<div class="card" onclick="openEditor()">Présentation</div>
+<div class="card" onclick="openEditor()">Doc</div>
+</div>
+</div>
+
+<!-- EDITOR -->
+<div id="editor">
+<button onclick="goHome()">⬅ Retour</button>
+<canvas id="canvas" width="350" height="450"></canvas>
+
+<div style="text-align:center">
+<input type="color" id="color">
+<button onclick="addText()">Texte</button>
+<button onclick="download()">Télécharger</button>
+</div>
+</div>
+
+<!-- MENU BAS -->
+<div class="bottom">
+<div class="btn">🏠 Accueil</div>
+<div class="btn" onclick="openEditor()">➕ Créer</div>
+<div class="btn">📁 Designs</div>
+<div class="btn">⚙️ Plus</div>
+</div>
 
 <script>
+const home=document.getElementById("home");
+const editor=document.getElementById("editor");
+
+function openEditor(){
+home.style.display="none";
+editor.style.display="flex";
+}
+
+function goHome(){
+editor.style.display="none";
+home.style.display="block";
+}
+
+/* CANVAS */
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
-let drawing=false;
-let mode="draw";
-let history=[];
-
-function saveState(){
-  history.push(canvas.toDataURL());
-}
-
-canvas.addEventListener("mousedown",(e)=>{
-  drawing=true;
-  saveState();
-  startX=e.offsetX;
-  startY=e.offsetY;
-});
-
-canvas.addEventListener("mouseup",(e)=>{
-  drawing=false;
-
-  if(mode==="rect"){
-    ctx.fillStyle=color.value;
-    ctx.fillRect(startX,startY,e.offsetX-startX,e.offsetY-startY);
-  }
-
-  if(mode==="circle"){
-    ctx.fillStyle=color.value;
-    let r=Math.hypot(e.offsetX-startX,e.offsetY-startY);
-    ctx.beginPath();
-    ctx.arc(startX,startY,r,0,Math.PI*2);
-    ctx.fill();
-  }
-});
-
-canvas.addEventListener("mousemove",(e)=>{
-  if(!drawing || mode!=="draw") return;
-
-  ctx.fillStyle=color.value;
-  ctx.beginPath();
-  ctx.arc(e.offsetX,e.offsetY,size.value,0,Math.PI*2);
-  ctx.fill();
-});
-
 function addText(){
-  saveState();
-  let text=prompt("Entre ton texte");
-  if(!text) return;
-  ctx.fillStyle=color.value;
-  ctx.font="30px Arial";
-  ctx.fillText(text,50,60);
-}
-
-function clearCanvas(){
-  saveState();
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-function undo(){
-  if(history.length>0){
-    let img=new Image();
-    img.src=history.pop();
-    img.onload=()=>ctx.drawImage(img,0,0);
-  }
+let t=prompt("Votre texte");
+if(!t) return;
+ctx.fillStyle=document.getElementById("color").value;
+ctx.font="25px Arial";
+ctx.fillText(t,40,80);
 }
 
 function download(){
-  let link=document.createElement("a");
-  link.download="design.png";
-  link.href=canvas.toDataURL();
-  link.click();
+let link=document.createElement("a");
+link.download="design.png";
+link.href=canvas.toDataURL();
+link.click();
 }
-
-/* Ajouter image */
-document.getElementById("imgLoader").addEventListener("change",function(e){
-  saveState();
-  const file=e.target.files[0];
-  const reader=new FileReader();
-
-  reader.onload=function(event){
-    let img=new Image();
-    img.onload=function(){
-      ctx.drawImage(img,100,100,200,200);
-    }
-    img.src=event.target.result;
-  }
-  reader.readAsDataURL(file);
-});
 </script>
 
 </body>
