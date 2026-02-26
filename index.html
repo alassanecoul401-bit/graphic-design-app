@@ -2,117 +2,158 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Design 5G Editor</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design 5G</title>
 
 <style>
 body{
-    margin:0;
-    background:#111;
-    color:white;
-    font-family:Arial;
+margin:0;
+font-family:Arial;
+background:#111;
+color:white;
+overflow:hidden;
 }
 
-#toolbar{
-    background:#222;
-    padding:10px;
-    display:flex;
-    gap:10px;
+/* ===== Pages ===== */
+.page{
+position:absolute;
+width:100%;
+height:100vh;
+top:0;
+left:0;
+display:none;
+}
+
+.active{
+display:flex;
+flex-direction:column;
+}
+
+/* ===== HOME ===== */
+#home{
+justify-content:center;
+align-items:center;
+text-align:center;
 }
 
 button{
-    padding:8px 12px;
-    border:none;
-    background:#00c3ff;
-    color:white;
-    border-radius:6px;
+padding:12px 18px;
+margin:10px;
+border:none;
+border-radius:8px;
+background:#00c3ff;
+color:white;
+font-size:16px;
+}
+
+/* ===== EDITOR ===== */
+#toolbar{
+background:#222;
+padding:10px;
+display:flex;
+gap:10px;
 }
 
 canvas{
-    background:white;
-    display:block;
-    margin:auto;
-    touch-action:none;
+background:white;
+flex:1;
+touch-action:none;
 }
 </style>
 </head>
 
 <body>
 
-<div id="toolbar">
-    <button onclick="addText()">Ajouter Texte</button>
-    <button onclick="saveProject()">Sauvegarder</button>
-    <button onclick="exportPNG()">Exporter PNG</button>
+<!-- ===== PAGE ACCUEIL ===== -->
+<div id="home" class="page active">
+<h1>🎨 DESIGN 5G</h1>
+<p>Créer comme Canva</p>
+<button onclick="openEditor()">Créer un design</button>
 </div>
 
-<canvas id="editor" width="400" height="600"></canvas>
+<!-- ===== PAGE EDITOR ===== -->
+<div id="editorPage" class="page">
+<div id="toolbar">
+<button onclick="goHome()">⬅</button>
+<button onclick="addText()">Texte</button>
+<button onclick="exportPNG()">Exporter</button>
+</div>
+
+<canvas id="editor"></canvas>
+</div>
 
 <script>
-const canvas = document.getElementById("editor");
-const ctx = canvas.getContext("2d");
+const home=document.getElementById("home");
+const editorPage=document.getElementById("editorPage");
 
-let objects = [];
-let selected = null;
+/* ===== Navigation Canva Style ===== */
+function openEditor(){
+home.classList.remove("active");
+editorPage.classList.add("active");
+resizeCanvas();
+draw();
+}
+
+function goHome(){
+editorPage.classList.remove("active");
+home.classList.add("active");
+}
+
+/* ===== Canvas ===== */
+const canvas=document.getElementById("editor");
+const ctx=canvas.getContext("2d");
+
+function resizeCanvas(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight-60;
+}
+
+window.onresize=resizeCanvas;
+
+let objects=[];
+let selected=null;
 
 /* ===== Ajouter texte ===== */
 function addText(){
-    objects.push({
-        type:"text",
-        text:"Design 5G",
-        x:150,
-        y:200,
-        size:30,
-        color:"#000"
-    });
-    draw();
+objects.push({
+text:"Design 5G",
+x:150,
+y:200,
+size:32
+});
+draw();
 }
 
 /* ===== Dessin ===== */
 function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    objects.forEach(obj=>{
-        if(obj.type==="text"){
-            ctx.fillStyle=obj.color;
-            ctx.font=obj.size+"px Arial";
-            ctx.fillText(obj.text,obj.x,obj.y);
-        }
-    });
+objects.forEach(o=>{
+ctx.fillStyle="#000";
+ctx.font=o.size+"px Arial";
+ctx.fillText(o.text,o.x,o.y);
+});
 }
 
 /* ===== Drag doigt ===== */
 canvas.addEventListener("touchstart",e=>{
-    const t=e.touches[0];
-    selected=objects[0];
+selected=objects[0];
 });
 
 canvas.addEventListener("touchmove",e=>{
-    if(!selected) return;
-    const t=e.touches[0];
-    selected.x=t.clientX-50;
-    selected.y=t.clientY-100;
-    draw();
+if(!selected) return;
+let t=e.touches[0];
+selected.x=t.clientX-50;
+selected.y=t.clientY-80;
+draw();
 });
 
-/* ===== Sauvegarde ===== */
-function saveProject(){
-    localStorage.setItem("project",JSON.stringify(objects));
-    alert("Projet sauvegardé");
-}
-
-/* ===== Charger ===== */
-const saved=localStorage.getItem("project");
-if(saved){
-    objects=JSON.parse(saved);
-    draw();
-}
-
-/* ===== Export PNG ===== */
+/* ===== Export ===== */
 function exportPNG(){
-    const link=document.createElement("a");
-    link.download="design5g.png";
-    link.href=canvas.toDataURL("image/png");
-    link.click();
+const link=document.createElement("a");
+link.download="design5g.png";
+link.href=canvas.toDataURL("image/png");
+link.click();
 }
 </script>
 
