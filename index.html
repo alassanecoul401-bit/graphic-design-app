@@ -14,7 +14,7 @@ color:white;
 overflow:hidden;
 }
 
-/* ===== Pages ===== */
+/* pages */
 .page{
 position:absolute;
 width:100%;
@@ -27,15 +27,11 @@ display:none;
 .active{
 display:flex;
 flex-direction:column;
-}
-
-/* ===== HOME ===== */
-#home{
 justify-content:center;
 align-items:center;
-text-align:center;
 }
 
+/* home */
 button{
 padding:12px 18px;
 margin:10px;
@@ -46,35 +42,40 @@ color:white;
 font-size:16px;
 }
 
-/* ===== EDITOR ===== */
-#toolbar{
+/* editor */
+#editorPage{
 background:#222;
-padding:10px;
+}
+
+#toolbar{
+height:60px;
+background:#111;
 display:flex;
+align-items:center;
 gap:10px;
+padding:10px;
 }
 
 canvas{
 background:white;
-flex:1;
-touch-action:none;
+display:block;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== PAGE ACCUEIL ===== -->
+<!-- PAGE 1 -->
 <div id="home" class="page active">
 <h1>🎨 DESIGN 5G</h1>
 <p>Créer comme Canva</p>
 <button onclick="openEditor()">Créer un design</button>
 </div>
 
-<!-- ===== PAGE EDITOR ===== -->
+<!-- PAGE 2 -->
 <div id="editorPage" class="page">
 <div id="toolbar">
-<button onclick="goHome()">⬅</button>
+<button onclick="goHome()">⬅ Retour</button>
 <button onclick="addText()">Texte</button>
 <button onclick="exportPNG()">Exporter</button>
 </div>
@@ -86,45 +87,33 @@ touch-action:none;
 const home=document.getElementById("home");
 const editorPage=document.getElementById("editorPage");
 
-/* ===== Navigation Canva Style ===== */
-function openEditor(){
-home.classList.remove("active");
-editorPage.classList.add("active");
-resizeCanvas();
-draw();
-}
-
-function goHome(){
-editorPage.classList.remove("active");
-home.classList.add("active");
-}
-
-/* ===== Canvas ===== */
 const canvas=document.getElementById("editor");
 const ctx=canvas.getContext("2d");
-
-function resizeCanvas(){
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight-60;
-}
-
-window.onresize=resizeCanvas;
 
 let objects=[];
 let selected=null;
 
-/* ===== Ajouter texte ===== */
-function addText(){
-objects.push({
-text:"Design 5G",
-x:150,
-y:200,
-size:32
-});
+/* ✅ FIX IMPORTANT */
+function initCanvas(){
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight-60;
 draw();
 }
 
-/* ===== Dessin ===== */
+/* navigation */
+function openEditor(){
+home.style.display="none";
+editorPage.style.display="block";
+
+setTimeout(initCanvas,100); // ← correction écran noir
+}
+
+function goHome(){
+editorPage.style.display="none";
+home.style.display="flex";
+}
+
+/* dessin */
 function draw(){
 ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -135,8 +124,19 @@ ctx.fillText(o.text,o.x,o.y);
 });
 }
 
-/* ===== Drag doigt ===== */
-canvas.addEventListener("touchstart",e=>{
+/* ajouter texte */
+function addText(){
+objects.push({
+text:"Design 5G",
+x:150,
+y:200,
+size:32
+});
+draw();
+}
+
+/* drag doigt */
+canvas.addEventListener("touchstart",()=>{
 selected=objects[0];
 });
 
@@ -148,7 +148,7 @@ selected.y=t.clientY-80;
 draw();
 });
 
-/* ===== Export ===== */
+/* export */
 function exportPNG(){
 const link=document.createElement("a");
 link.download="design5g.png";
