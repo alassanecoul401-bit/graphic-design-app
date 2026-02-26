@@ -1,61 +1,120 @@
-APP DESIGN 5G
-│
-├── 1. Moteur Canvas (éditeur)
-├── 2. Système d’objets
-├── 3. Sauvegarde projet
-└── 4. Export image
-<canvas id="editor"></canvas>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design 5G Editor</title>
+
+<style>
+body{
+    margin:0;
+    background:#111;
+    color:white;
+    font-family:Arial;
+}
+
+#toolbar{
+    background:#222;
+    padding:10px;
+    display:flex;
+    gap:10px;
+}
+
+button{
+    padding:8px 12px;
+    border:none;
+    background:#00c3ff;
+    color:white;
+    border-radius:6px;
+}
+
+canvas{
+    background:white;
+    display:block;
+    margin:auto;
+    touch-action:none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="toolbar">
+    <button onclick="addText()">Ajouter Texte</button>
+    <button onclick="saveProject()">Sauvegarder</button>
+    <button onclick="exportPNG()">Exporter PNG</button>
+</div>
+
+<canvas id="editor" width="400" height="600"></canvas>
 
 <script>
 const canvas = document.getElementById("editor");
 const ctx = canvas.getContext("2d");
 
 let objects = [];
+let selected = null;
 
+/* ===== Ajouter texte ===== */
+function addText(){
+    objects.push({
+        type:"text",
+        text:"Design 5G",
+        x:150,
+        y:200,
+        size:30,
+        color:"#000"
+    });
+    draw();
+}
+
+/* ===== Dessin ===== */
 function draw(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  objects.forEach(obj=>{
-    ctx.save();
-    ctx.translate(obj.x, obj.y);
-    ctx.rotate(obj.rotation);
-    ctx.drawImage(obj.img,0,0,obj.w,obj.h);
-    ctx.restore();
-  });
+    objects.forEach(obj=>{
+        if(obj.type==="text"){
+            ctx.fillStyle=obj.color;
+            ctx.font=obj.size+"px Arial";
+            ctx.fillText(obj.text,obj.x,obj.y);
+        }
+    });
+}
+
+/* ===== Drag doigt ===== */
+canvas.addEventListener("touchstart",e=>{
+    const t=e.touches[0];
+    selected=objects[0];
+});
+
+canvas.addEventListener("touchmove",e=>{
+    if(!selected) return;
+    const t=e.touches[0];
+    selected.x=t.clientX-50;
+    selected.y=t.clientY-100;
+    draw();
+});
+
+/* ===== Sauvegarde ===== */
+function saveProject(){
+    localStorage.setItem("project",JSON.stringify(objects));
+    alert("Projet sauvegardé");
+}
+
+/* ===== Charger ===== */
+const saved=localStorage.getItem("project");
+if(saved){
+    objects=JSON.parse(saved);
+    draw();
+}
+
+/* ===== Export PNG ===== */
+function exportPNG(){
+    const link=document.createElement("a");
+    link.download="design5g.png";
+    link.href=canvas.toDataURL("image/png");
+    link.click();
 }
 </script>
-let textObject = {
-  type:"text",
-  text:"Design 5G",
-  x:120,
-  y:200,
-  size:40,
-  color:"#000",
-  rotation:0
-};
-Touch start → sélectionner objet
-Touch move → changer position
-Pinch → zoom
-Rotate → angle
-canvas.addEventListener("touchmove",(e)=>{
- selected.x = e.touches[0].clientX;
- selected.y = e.touches[0].clientY;
- draw();
-});
-localStorage.setItem(
- "project",
- JSON.stringify(objects)
-);
-objects = JSON.parse(localStorage.getItem("project"));
-draw();
-let link = document.createElement("a");
-link.download = "design5g.png";
-link.href = canvas.toDataURL("image/png");
-link.click();
-Design5G/
- ├── Editor Screen
- ├── Toolbar
- ├── Text Manager
- ├── Sticker Library
- ├── Save System
- └── Export Engine
+
+</body>
+</html>
